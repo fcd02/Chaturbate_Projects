@@ -1,0 +1,22 @@
+CTBRec Mobile Reviewer v2.14.4 — Durable Mosaic Traversal + Integrity/Rebuild
+
+FIXED
+- Background whole-library mosaic generation could resume from model 1 after catalog/model byte totals changed. The current pass is now a durable snapshot with a stable model/mode identity fingerprint and persisted cursor.
+- User-facing operational numeric settings had arbitrary maxima in HTML and backend validation. Those maxima are removed; semantic/protocol bounds remain where values are intrinsically bounded.
+- Model tiles could retain stale byte totals after a fresh disk/catalog scan. All visible model-list modes now refresh from the new catalog timestamp while preserving scroll/window state.
+- Old multi-part Original mosaic JPEGs could remain when a regenerated mosaic used a different part count. Fresh generation removes stale same-base outputs first.
+- Mobile tap maps now reject invalid JPEG dimensions, wrong source identities, wrong frame counts/order/timestamps, and duplicate rectangles.
+- READY queue hydration now de-duplicates exact signature and exact source-set duplicates.
+
+ADDED
+- Durable `mobile_library_mosaic_plan.json` for one uninterrupted logical full-library traversal across pauses/restarts.
+- `Rebuild chunk + mosaic` button/action: re-scan current model files, reconcile missing/extra chunk members, purge source-equivalent stale mosaics, regenerate authoritative JPEG + hit map, and persist reconciled READY state.
+- End-relative filename metadata (`_endminus_XmYYs_to_ZmYYs`) for newly retained/relocated media, including precise Review clips, Original KEEP-to-Review moves, and Review moves to Cumshots/Misc Hot Scenes.
+- v2.14.4 regression suite with a real synthetic FFmpeg/Pillow Original mosaic generation + stale-part cleanup test.
+
+UNCHANGED
+- v2.14.3 Recu explicit-confirmation capture architecture and incremental Recu memory.
+- Destructive move/cut verification invariants, PC queue durability, live CTBRec bridge safety, and idle/background priority rules.
+
+PWA cache: v2144
+Server: CTBRecMobile/2.14.4

@@ -1,0 +1,16 @@
+CTBRec Mobile Reviewer — update v2.8.1 -> v2.8.2
+===================================================
+
+RECOMMENDED: use the model-bundled drop-in.
+
+1. Stop the current server with stop_mobile_reviewer.bat.
+2. Extract CTBRec_Mobile_Reviewer_v2_8_2_DROPIN_WITH_640M.zip.
+3. Copy ctbrec_nsfw_cleanup.py and ctbrec_mobile_server.py over your current copies.
+4. Copy the included models folder over your current models folder.
+   The included models\nudenet_640m.onnx is already the exact verified 103,538,690-byte model.
+5. Restart with start_mobile_reviewer.bat.
+6. Tap Run Non-NSFW pass now. No model download should occur.
+
+If you use the code-only drop-in instead, v2.8.2 will also automatically recognize a valid file named 640m.onnx or nudenet_640m.onnx in either the main app folder or models folder and adopt it before trying the network.
+
+No pip install is required.

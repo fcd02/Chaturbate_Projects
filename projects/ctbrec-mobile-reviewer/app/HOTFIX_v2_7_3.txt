@@ -1,0 +1,16 @@
+CTBRec Mobile Reviewer v2.7.3 offline-pack builder hotfix
+
+Fixes:
+- Defines the shared escapeHtml() helper used by the custom offline-pack model picker.
+- Prevents the error: "Could not open offline-pack builder: escapeHtml is not defined".
+- Bumps the service-worker shell cache to v273 so app.js/rapid.js refresh on iPhone.
+- Does NOT change the IndexedDB database or offline mosaic cache namespace, so existing offline bundles/decisions are preserved.
+
+Fast update from v2.7.2:
+1. Stop Mobile Reviewer.
+2. Replace static/app.js and static/service-worker.js with the files in the v2.7.3 drop-in package.
+3. Start Mobile Reviewer.
+4. Fully close the Home Screen app/Safari tab and reopen it.
+5. If the old error somehow remains, remove/re-add the Home Screen shortcut or clear website data for the reviewer origin once.
+
+No pip install is needed.

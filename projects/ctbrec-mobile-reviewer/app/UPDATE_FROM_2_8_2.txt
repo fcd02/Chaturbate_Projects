@@ -1,0 +1,16 @@
+CTBRec Mobile Reviewer — update v2.8.2 to v2.9 SORT FIRST
+
+RECOMMENDED FULL-PACKAGE UPDATE
+1. Stop the old server with stop_mobile_reviewer.bat.
+2. Extract the v2.9 FULL package to a NEW folder.
+3. In the new folder, run copy_state_from_old_version.bat and point it at your current v2.8.2 CTBRec_Mobile_Reviewer folder.
+   This preserves mobile_config.json/secret_key, recording_roots.txt, Recu state, durable action queue, offline sync state, ready/catalog caches, Keep Last rules, and useful mosaic/duration manifests.
+4. The v2.9 full package already includes the verified NudeNet 640m model.
+5. Run install_mobile_reviewer.bat. No new dependency is added, but this verifies the existing environment.
+6. Run start_mobile_reviewer.bat.
+7. Fully close the iPhone Home Screen app/Safari tab and reopen it. v2.9 uses a new service-worker shell cache. If the old UI persists, remove/re-add the Home Screen shortcut once.
+
+IMPORTANT
+- Do not copy old Python/JS/CSS files over the new package.
+- Do not replace the new bundled models\nudenet_640m.onnx unless you intentionally want another verified copy.
+- Pending durable actions can be copied safely; v2.9 intentionally defers them behind mosaic availability while you sort.

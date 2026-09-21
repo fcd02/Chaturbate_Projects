@@ -1,0 +1,23 @@
+CTBRec MOBILE REVIEWER 2.0
+
+ADDED
+- Dedicated Recu verification Chrome profile.
+- Phone-triggered launch of the Recu verification browser.
+- Chrome Remote Desktop handoff instructions in the phone UI.
+- Automatic capture of Recu cookies and matching user-agent through Chrome DevTools Protocol.
+- Browser-backed Recu page retrieval through the verified Chrome session, with cookie HTTP fallback.
+- Recu kink markers mapped to numbered source segments and shown on mosaic tiles/file rows.
+- Third mobile mode for recursively reviewing drive-level MARKED_FOR_DELETION folders.
+- Permanent deletion with select-all-current-chunk, short-lived confirmation token, exact DELETE phrase, and path containment checks.
+- Recursive discovery of nested marked-for-deletion video files, including Review subfolders.
+- Mobile Settings screen.
+- Background future-mosaic generation with configurable ready count.
+- Idle-only future generation and pause/resume behavior between jobs.
+- Manual Generate now / Ahead controls.
+- Original and Review/deletion mosaic layout controls.
+
+UNCHANGED
+- Originals KEEP/DELETE move behavior still delegates to Mosaic Sort Lite 2.6.6.
+- Review folder routing still delegates to Review Sort Lite 1.4.1.
+- model_dup# folders remain aggregated as one logical model.
+- The HTTP backend remains loopback-only and intended for private Tailscale Serve.

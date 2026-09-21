@@ -1,0 +1,25 @@
+CTBRec Mobile Reviewer v2.15.3 — Validation Report
+
+Scope
+- Fix permanent __pending__ model-open spinner introduced by v2.15.2 pending-inventory protection.
+- Preserve v2.15.2 bounded active-model look-ahead and all earlier behavior.
+
+New regression
+- validation/validate_v2_15_3_pending_open_recovery.py
+  PASS: completed shared index task with indexed chunks but no attached queue is detected as an orphan and re-armed.
+  PASS: a legitimately running task is not duplicated and its live progress is mirrored to the pending phone surface.
+  PASS: a real zero-chunk model becomes an explicit terminal error rather than an infinite spinner.
+
+Historical regression status
+- 24 validation suites under validation/ passed in development-tree runs split into batches because the combined suite exceeds the tool session timeout.
+- Python compilation: PASS.
+- static/app.js syntax: PASS.
+- static/service-worker.js syntax: PASS.
+
+Final packaging gates
+- Clean extracted FULL SOURCE: Python compile PASS; app.js/rapid.js/service-worker.js syntax PASS; all 24 validation suites PASS in batches.
+- FULL SOURCE sanitation: blank PIN/secret PASS; empty starter catalog/action queue PASS; empty log PASS; comment-only roots PASS.
+- v2.15.2→v2.15.3 PATCH overlay: 15 protected runtime/private sentinels remained byte-for-byte unchanged.
+- PATCH inventory exclusion: config, roots, action queue, catalog/READY/library/NSFW state, model metadata, Recu session/cache/profile, media/model-binary state absent.
+
+Release status: FINAL / GREEN.

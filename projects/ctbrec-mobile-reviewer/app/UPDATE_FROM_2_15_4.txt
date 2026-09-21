@@ -1,0 +1,10 @@
+CTBRec Mobile Reviewer v2.15.4 -> v2.15.5
+
+1. Stop Mobile Reviewer.
+2. Extract CTBRec_Mobile_Reviewer_v2_15_5_PATCH.zip over your existing v2.15.4 installation.
+3. Restart Mobile Reviewer.
+4. Fully close/reopen the iPhone/desktop PWA once so shell v2155 loads.
+5. For the new TS-only size sort, tap Rescan once. Older cached catalog rows do not contain per-extension byte totals; the ordinary rescan adds exact .ts bytes without touching mosaics/READY queues.
+6. If a video still fails direct playback, reproduce the problem in Preview and press Export preview diagnostics. Send that ZIP; it contains no video bytes, but may contain model/file names and local paths.
+
+The patch does not include or overwrite mobile_config.json, recording_roots.txt, action/catalog/READY/library/NSFW state, model metadata, Recu session/profile, logs, generated media/mosaics, or model binaries.

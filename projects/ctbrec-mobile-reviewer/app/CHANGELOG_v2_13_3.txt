@@ -1,0 +1,31 @@
+CTBRec Mobile Reviewer v2.13.3 — Field Regression Recovery
+2026-09-11
+
+This release repairs multiple regressions discovered from the user's real v2.13.2 diagnostic bundle.
+
+FIXED
+- install_mobile_reviewer.bat no longer falsely fails because the self-test expected the removed v2.13 AbortController implementation.
+- Opening a model no longer turns previously-ready mosaics into not-ready merely by rebuilding chunk metadata.
+- open_fast_initial_chunks is now a synchronous validation budget, not a cap on ready work: a tile showing 15 ready opens all 15 ready chunks while only the first few are synchronously validated.
+- Exact-signature durable ready-snapshot mosaic paths are restored onto rebuilt chunks before snapshots are repersisted.
+- Recu is enabled for both Originals and Review queues.
+- v2.13.x corrupted-settings fingerprint is detected and repaired conservatively on startup, with the pre-repair config backed up locally.
+- Settings saves use an optimistic revision token; stale/uninitialized PWAs cannot overwrite config.
+- Launch Recu / Run NSFW / Run background mosaic actions no longer implicitly save the entire Settings form.
+- EZ Sort membership discovered from legacy read-only models.json is imported into Reviewer-owned metadata so native-controller disable/restart/path churn cannot make the EZ Sort tab drop to zero.
+- Legacy read-only filter metadata remains readable even when the native model-controller UI is disabled.
+- Original batched mosaic generation typo `normalized` -> `normalized_absolute` fixes the logged NameError that caused models to retry three times and be skipped.
+
+PRESERVED
+- v2.13.2 no-AbortController catalog model-list path and HTTP/1.0/plain JSON rollback.
+- bounded 120-card mobile DOM rendering and stale-response sequencing.
+- v2.13 batched Original/Review/NSFW FFmpeg extraction.
+- v2.12 precise idle frame cuts and verify-before-delete rules.
+- v2.11.3 background liveness/retry/skip behavior.
+- identity-verified live CTBRec bridge and no models.json mutation fallback.
+
+VALIDATION
+- Python compilation and JavaScript syntax checks pass.
+- v2.13 core, catalog-no-abort, HTTP, browser DOM, FFmpeg batch and NSFW batch suites pass.
+- New v2.13.3 field-regression suite passes including a real-FFmpeg complete Original generate_mosaic call.
+- Exact diagnostic corruption fingerprint from the field bundle is recognized and repaired to sane defaults; near-miss configs are not auto-repaired.

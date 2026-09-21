@@ -1,0 +1,10 @@
+CTBRec Mobile Reviewer v2.15.6
+
+- Replaced fallback-only Fast seek box with a player-integrated source timeline.
+- Fallback timeline always represents absolute source time 0:00 → full duration, even when FFmpeg restarts underneath.
+- Playback ladder is automatic per file: direct/seekable → remux → compatibility.
+- Premature stream end no longer advances to the next selected file; it triggers the next playback method for the same file.
+- Terminal playback failure stays on the current file and preserves diagnostics export.
+- Direct/HLS native controls remain unchanged.
+- Queue/mosaic/READY/look-ahead/TS-sort/Shift-click behavior unchanged.
+- Version: CTBRecMobile/2.15.6; PWA shell ctbrec-shell-v2156; static assets ?v=2156.

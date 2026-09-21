@@ -1,0 +1,29 @@
+CTBRec Mobile Reviewer v2.14.3 — Recu Explicit-Confirmation Verification Fix
+
+ROOT CAUSE
+- v2.14.2 Capture still inspected the currently visible Recu DOM.
+- Its challenge detector included broad strings such as `challenge-platform` and `cloudflare ray id`.
+- Normal accessible Recu pages can contain those Cloudflare helper/script strings.
+- The user's field screenshot showed a normal Recu homepage while Capture returned HTTP 400.
+- The working Recu Clip Model Counter v2.4.1 intentionally avoids automatic successful-verification DOM guessing and uses only four core challenge markers.
+
+FIXES
+- Capture is now explicit user confirmation: Browser.getVersion + Storage.getCookies only.
+- Capture does not inspect/navigate the page and does not run a required HTTP probe.
+- Exact challenge tokens: cf-chl-, verify you are human, just a moment, checking your browser.
+- Generic Cloudflare script/footer markers are no longer challenges.
+- Sign In/password markup on public pages is not treated as auth failure. Only a real login URL redirect is.
+- Public normal-shell recognition includes The Biggest Chaturbate Archive and Most Bookmarked Recordings.
+- No-cookie captures fall back to Chrome navigation instead of failing Capture.
+- Session schema bumped to 2143; older sessions migrate safely.
+- Capture endpoint failures are now logged with exception type/message.
+- PWA cache bumped to v2143.
+
+PRESERVED
+- v2.14 incremental per-model/per-kink scan memory and stop-at-known-session behavior.
+- bounded concurrent HTTP retrieval + 429 backoff.
+- verified Chrome Page.navigate/outerHTML reliability fallback.
+- Originals and Review Recu support.
+- direct-disk desktop preview + remux fallback.
+- scroll-to-top on next mosaic.
+- all v2.13 performance, READY-state, EZ Sort, settings-safety, FFmpeg batching and background-liveness fixes.

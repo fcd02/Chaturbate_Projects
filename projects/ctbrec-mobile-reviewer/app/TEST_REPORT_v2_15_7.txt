@@ -1,0 +1,36 @@
+CTBRec Mobile Reviewer v2.15.7 — Validation Report
+
+Source validation
+- Python compileall: PASS
+- static/app.js syntax: PASS
+- static/rapid.js syntax: PASS
+- Full regression suites: 28/28 PASS
+
+New v2.15.7 stabilization coverage
+- Real Chromium symmetric Shift-click selection and unselection: PASS
+- Review Frame Cut explicit Clear button: PASS
+- Rapid Sort new-chunk selection isolation (frame decisions + anchors): PASS
+- Frame Cut granularity preference preserved while per-chunk selections reset: PASS
+- Stale delayed autosave rejected by chunk signature: PASS
+- Exact media-duration probe ignores misleading `_tail_1h35m...` filename semantics: PASS
+- Preview unknown-duration premature-end guard: PASS
+- Validated original sidecar exact-duration reuse: protected by source invariant + inherited sidecar regressions
+
+Inherited regression coverage retained
+- catalog/model-list resilience and 4k+ model rendering
+- exact-model on-demand opening and pending self-healing
+- active phone queue lease recovery
+- bounded active-model automatic look-ahead
+- mosaic hit-map integrity / sidecar recovery / reindex scoping
+- direct disk Range preview / playback ladder / diagnostics
+- Recu auth, legacy capture, explicit capture, incremental behavior
+- Keep Last parsing + per-session/cross-drive behavior
+- NSFW cleanup and FFmpeg batching
+- Random / average-chunk / TS-only model sorting
+- scroll reset and mobile transport diagnostics
+
+Final package gates
+- 28/28 regression suites PASS from a clean extraction of the actual FULL SOURCE ZIP
+- Fresh FULL SOURCE extraction sanitization: PASS (blank PIN/secret, empty starter action/catalog state, zero-byte log)
+- v2.15.6 -> v2.15.7 PATCH overlay: 13/13 representative runtime/private sentinels byte-identical
+- Patch excludes runtime/private state, Recu profile/session data, model binary, logs and media

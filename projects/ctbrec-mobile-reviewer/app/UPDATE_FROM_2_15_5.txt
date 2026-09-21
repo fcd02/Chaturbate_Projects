@@ -1,0 +1,9 @@
+CTBRec Mobile Reviewer v2.15.5 -> v2.15.6
+
+1. Stop Mobile Reviewer.
+2. Overlay CTBRec_Mobile_Reviewer_v2_15_6_PATCH.zip onto the existing v2.15.5 installation.
+3. Restart Reviewer.
+4. Fully close/reopen the desktop/iPhone PWA once so shell v2156 loads.
+5. Preview multiple selected files. Direct playback is tried first; fallback methods are automatic.
+6. In remux/Compatibility fallback, use the timeline overlaid on the video; it represents the original recording's full source time.
+7. If every method fails on one file, Reviewer should remain on that file. Export Preview diagnostics and share that ZIP.

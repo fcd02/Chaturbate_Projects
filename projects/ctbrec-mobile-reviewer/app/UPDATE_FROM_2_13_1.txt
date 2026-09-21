@@ -1,0 +1,11 @@
+Updating CTBRec Mobile Reviewer v2.13.1 -> v2.13.2
+
+1. Stop Mobile Reviewer.
+2. Extract the v2.13.2 PATCH.
+3. Overlay its CTBRec_Mobile_Reviewer folder onto the existing installation and allow file replacement.
+4. Restart Mobile Reviewer.
+5. Fully terminate the iPhone Home Screen PWA and reopen it once (shell cache v2132).
+6. Open All Models, then switch among Review / EZ Sort / Hidden and open a model.
+7. If the model list still fails, double-click collect_mobile_diagnostics.bat while the PC server is running and upload the generated CTBRec_Mobile_Reviewer_Diagnostics_*.zip to ChatGPT.
+
+The PATCH does not include active config, roots, queue, Recu state, catalog/index caches, sidecars, logs, or the NudeNet model.

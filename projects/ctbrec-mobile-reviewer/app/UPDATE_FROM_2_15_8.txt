@@ -1,0 +1,9 @@
+UPDATE v2.15.8 -> v2.15.9
+=======================
+
+1. Stop Reviewer.
+2. Overlay `CTBRec_Mobile_Reviewer_v2_15_9_PATCH.zip` onto the existing v2.15.8 installation (or use the bundled Git Bridge update path).
+3. Restart Reviewer.
+4. Fully close/reopen the browser/PWA once so shell cache `v2159` is active.
+
+No migration of runtime state is required. The patch excludes private/runtime state. The new seekable MP4 preview wrappers live only in the system temporary directory and are safe to regenerate. Source recordings are never rewritten.

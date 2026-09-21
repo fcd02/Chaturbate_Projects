@@ -1,0 +1,13 @@
+{
+  "repository_full_name": "fcd02/Chaturbate_Projects",
+  "repo_path": "C:\\GitHub\\Chaturbate_Projects",
+  "project_subdir": "projects\\ctbrec-mobile-reviewer",
+  "app_subdir": "projects\\ctbrec-mobile-reviewer\\app",
+  "runtime_path": "C:\\path\\to\\your\\currently-running\\CTBRec_Mobile_Reviewer_folder",
+  "base_branch": "main",
+  "publish_mode": "pull-request",
+  "auto_merge_pull_request": true,
+  "create_version_tag": true,
+  "run_full_validation": true,
+  "restart_after_update": true
+}

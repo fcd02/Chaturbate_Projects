@@ -1,0 +1,58 @@
+﻿# Local/private workspace
+.local/
+.env
+.env.*
+!.env.example
+
+# Python / editors
+**/__pycache__/
+**/*.py[cod]
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# CTBRec private/runtime state
+**/mobile_config.json
+**/recording_roots.txt
+**/keeplasts.txt
+**/mobile_recu_session.json
+**/mobile_action_queue.json
+**/mobile_catalog_cache.json
+**/mobile_ready_work_index.json
+**/mobile_offline_sync_history.json
+**/mobile_library_mosaic_state.json
+**/mobile_library_mosaic_plan.json
+**/mobile_non_nsfw_index.json
+**/mobile_non_nsfw_state.json
+**/mobile_mosaic_layout_cache.json
+**/mobile_hidden_models.json
+**/mobile_model_metadata.json
+**/mobile_server.pid
+**/mobile_reviewer.log
+**/*duration_cache*.json
+**/*transcript_cache*.json
+**/*model_size_cache*.json
+**/*manifest.json
+**/recu_browser_profile/
+**/mobile_delete_mosaics/
+**/diagnostics/
+
+# Media / generated assets / model binaries
+**/models/**
+!**/models/README.md
+**/*.onnx
+**/*.ts
+**/*.mp4
+**/*.mkv
+**/*.webm
+**/*.mov
+**/*.avi
+**/*mosaic*.jpg
+**/*mosaic*.jpeg
+**/*mosaic*.png
+
+# Build/release archives
+**/*.zip
+**/*.7z
+**/*.rar

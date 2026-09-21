@@ -1,0 +1,34 @@
+CTBRec Mobile Reviewer v2.14.8
+================================
+
+Exact-model model open
+- Removed the hard 12-second timeout from `/api/queues/open-fast`.
+- A clicked Original/Review model now receives a queue immediately even when no mosaic is ready.
+- The UI remains inside the exact clicked model while its first mosaic is prepared.
+- Removed automatic code-driven next-ready-model hopping; Next Ready Model remains manual only.
+
+Bounded / demand-driven mosaic work
+- The clicked-model priority worker no longer generates every chunk in the model.
+- It performs sidecar recovery + chunk indexing, attaches one stable inventory, then requests only the current mosaic.
+- Removed automatic `schedule_prefetch()` calls from maintenance and navigation paths.
+- Generate Ahead is now the only explicit future-mosaic pre-generation path.
+- Leaving/switching queues cancels old priority targets and manual prefetch demand.
+- Interactive mosaic generation checks that its queue is still the active sorting queue at progress checkpoints.
+
+v2.14.7 preservation
+- Existing sidecar recovery remains the durable repair path.
+- Done/skipped Original chunks are still not resurrected.
+- Manual Generate Ahead still reindexes sidecars before determining upcoming work.
+- The tap-response path skips synchronous sidecar scanning to avoid blocking model entry; that reconciliation moves to the priority worker.
+
+Video playback recovery
+- Direct/local-disk or HLS failures/stalls retry fast remux automatically.
+- Fast remux failures/stalls retry compatibility transcoding automatically.
+- Added startup stall timers so playback that hangs without a browser error can recover.
+- FFmpeg preview/HLS paths use `+genpts+discardcorrupt`, `ignore_err`, normalized negative timestamps, and fragmented MP4 `default_base_moof` output where applicable.
+- HLS segment generation has a bounded subprocess timeout.
+
+Release identity
+- Server: CTBRecMobile/2.14.8
+- PWA shell: ctbrec-shell-v2148
+- Static asset query: 2148

@@ -1,0 +1,41 @@
+CTBRec Mobile Reviewer 2.10 — resilient queue + CTBRec model controls
+
+1. Duplicate-chunk protection
+- Every sortable chunk now has a stable source-set identity derived from exact source paths, byte sizes, and mtimes.
+- Source order and mosaic signature do not alter the identity.
+- Repeated/reordered mosaics for the same source files reuse the first durable decision and cannot append a second filesystem job.
+- Claimed source sets are excluded from ready counts, suggestions, recovered queues, and newly generated queue inserts.
+
+2. Queue failures no longer starve mosaic generation
+- Missing source files caused by stale/duplicate work are treated as idempotent already-handled success.
+- Genuine failures retry at most 3 times by default and then become terminal failed history.
+- Failed/retired/legacy-blocked jobs do not count as pending durable work and cannot pause whole-library mosaic or Non-NSFW passes.
+- Fresh queued jobs execute before retry jobs.
+- Failed history stays visible and can be deliberately retried after fixing the underlying problem.
+- Exact v2.9.1 defaults of 8 attempts / 900-second retry ceiling migrate to 3 / 300; custom values are preserved.
+
+3. CTBRec model controls
+- Model controls load asynchronously after the mosaic is already interactive.
+- Favorite, Likely Favorite, Continue, Test, Unsorted, Low Priority.
+- Easy Sort writes `CTBRec Sorter EZ Sort: yes` and adds a largest-first Easy Sort tab.
+- Reversible mobile-only Hide and a Hidden tab.
+- Pause/Resume writes CTBRec's suspended field.
+- Every models.json write gets a timestamped backup and atomic replacement.
+
+4. Keep Last, aliases, Ignore
+- Per-model Keep Last minutes update keeplasts.txt and immediately queue that model only. 0 removes the rule.
+- Alias syntax supports default Chaturbate and cb/sc/cs/c4/f4f/bc/sm site prefixes with c/f/p/i actions.
+- Alias-search shortcuts open Recu, Google, Chaturbate, and Stripchat searches.
+- Ignore removes the alias group from active CTBRec config, adds URLs to ignoredModels/shared ignore-list, and queues matching base/_dup# folders for MARKED_FOR_DELETION.
+- Ignore prefers instant same-drive whole-folder moves and falls back to a non-overwriting merge.
+
+5. Settings/PWA
+- Mobile Settings can auto-discover or explicitly list CTBRec models.json paths.
+- Queue language now uses failed/stopped instead of blocked.
+- PWA shell cache bumped to ctbrec-shell-v2100.
+
+6. Preserved SORT-FIRST order
+1) Current/requested model and offline-pack mosaics.
+2) Fresh queued user filesystem actions.
+3) Whole-library mosaic and Non-NSFW passes.
+Retrying/failed-prone jobs do not starve background mosaic generation.

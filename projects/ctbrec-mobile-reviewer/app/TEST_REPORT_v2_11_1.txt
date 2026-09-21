@@ -1,0 +1,37 @@
+CTBRec Mobile Reviewer v2.11.1 — Client Disconnect Hotfix Test Report
+=====================================================================
+Date: 2026-08-28
+
+Reported failure
+----------------
+Windows traceback while serving the local dashboard/static index:
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+The traceback originated from Handler.send_file() -> self.wfile.write(raw).
+
+Root cause
+----------
+A browser/PWA/local request was cancelled or its socket was closed while Python was writing a response. This is a normal client-disconnect condition, but the v2.11 static-file and JSON response paths did not catch it. Python therefore terminated that request thread and printed a traceback, making the Reviewer appear to have crashed and causing the affected page request to fail.
+
+Patch
+-----
+1. Added explicit client-disconnect classification for BrokenPipeError, ConnectionResetError, ConnectionAbortedError, Windows socket errors 64/10053/10054/10057/10058, and equivalent POSIX EPIPE/ECONNRESET/ECONNABORTED/ENOTCONN conditions.
+2. Wrapped static-file and JSON header/body writes so expected disconnects close only that request cleanly.
+3. Added ResilientThreadingHTTPServer.handle_error() to suppress traceback spam only for recognized disconnects; unexpected server errors still use the normal error handler.
+4. Prevented HLS playlist cancellation from trying to send a second HTTP 500 response over a socket that is already gone.
+5. No changes to rapid sorting, queue semantics, mosaic generation, Recu, live CTBRec bridge commands, Reviewer sidecars, or models.json behavior.
+
+Validation
+----------
+PASS - Python compilation for patched DROP-IN package.
+PASS - Python compilation for patched FULL package.
+PASS - JavaScript syntax checks for app.js, rapid.js, and service-worker.js.
+PASS - Synthetic ConnectionAbortedError/WinError 10053 during send_file() is absorbed and marks the connection closed.
+PASS - Synthetic ConnectionAbortedError/WinError 10053 during send_json() is absorbed and marks the connection closed.
+PASS - Synthetic unrelated OSError is NOT swallowed; unexpected I/O errors still surface.
+PASS - Live HTTP test: client requests an 8 MiB static file, forcibly aborts the TCP connection with RST, then a fresh request to / succeeds with HTTP 200. Server remains operational.
+
+Install behavior
+----------------
+This is a server-only behavioral hotfix. No config migration is needed. Existing mobile_config.json, recording roots, action queues, Recu state, Reviewer metadata, NudeNet model, and CTBRec live-bridge configuration do not need to be replaced or reset.
+
+Release: v2.11.1

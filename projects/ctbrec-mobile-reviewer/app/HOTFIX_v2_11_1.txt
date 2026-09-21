@@ -1,0 +1,45 @@
+CTBRec Mobile Reviewer v2.11.1 — Windows Client-Disconnect Hotfix
+===============================================================
+
+WHY THIS PATCH EXISTS
+---------------------
+A browser/PWA request can be cancelled while the local Reviewer server is sending
+index.html, JavaScript, JSON, or preview data. On Windows this can surface as:
+
+    ConnectionAbortedError: [WinError 10053]
+    An established connection was aborted by the software in your host machine
+
+The v2.11 static-file response path did not treat that normal client cancellation
+as a disconnect, so Python printed a request-thread traceback. Depending on when
+the cancellation happened, the current page request could fail and make Reviewer
+appear to have crashed.
+
+WHAT CHANGED
+------------
+- Static-file and JSON responses now explicitly absorb expected disconnect errors.
+- WinError 10053/10054 and equivalent broken-pipe/reset/aborted socket conditions
+  are treated as client disconnects, not server failures.
+- The ThreadingHTTPServer now suppresses traceback spam only for those known
+  disconnect conditions; unexpected server errors still surface normally.
+- HLS playlist cancellation no longer attempts to send a second 500 response over
+  an already-closed socket.
+- No sorting, queue, mosaic, live-bridge, Recu, model-sidecar, or models.json logic
+  was changed by this hotfix.
+
+INSTALL OVER AN EXISTING v2.11
+------------------------------
+1. Stop CTBRec Mobile Reviewer.
+2. Copy/overlay this package into the existing CTBRec_Mobile_Reviewer folder.
+3. Allow Windows to replace ctbrec_mobile_server.py (and mobile_self_test.py if
+   using the full drop-in).
+4. Restart Mobile Reviewer. No config/state migration is required.
+
+TESTS
+-----
+- Python syntax/compile check: PASS
+- Synthetic WinError 10053 during send_file(): PASS
+- Synthetic WinError 10053 during send_json(): PASS
+- Unexpected non-disconnect OSError is NOT swallowed: PASS
+- Live HTTP request aborted with TCP RST, followed by successful fresh request: PASS
+
+Release: v2.11.1

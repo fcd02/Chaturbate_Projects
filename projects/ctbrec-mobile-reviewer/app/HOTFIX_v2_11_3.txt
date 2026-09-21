@@ -1,0 +1,49 @@
+CTBRec Mobile Reviewer v2.11.3 — Background Mosaic Liveness Hotfix
+
+Problem fixed
+-------------
+Whole-library mosaic generation could remain parked at a model with the message
+"Paused for requested model mosaics or queued PC instructions" even when the
+visible PC queue was empty and the phone had not been used for hours.
+
+Root causes addressed
+---------------------
+1. Every historical in-memory sorting queue was being auto-prefetched every 8s.
+   Those hidden prefetch futures counted as interactive phone work, so a queue
+   opened long ago could repeatedly starve the 4,000+ model background pass.
+2. The phone heartbeat did not identify the queue actually on screen, so the
+   server could not distinguish current sorting demand from old queue objects.
+3. ffmpeg frame extraction in both Original and Review mosaic generators had no
+   hard timeout. One damaged/stalled recording could therefore hang a worker.
+4. A background mosaic failure was recorded but had no explicit bounded
+   per-model retry/quarantine policy.
+
+New guarantees
+--------------
+- Automatic prefetch runs only for the queue currently visible on a phone with a
+  live 45-second sorting heartbeat lease.
+- When the phone disappears, its queue lease expires automatically and old
+  queues cannot pause whole-library generation.
+- Completed interactive/prefetch futures are pruned from scheduler bookkeeping.
+- Whole-library pause decisions are based on freshly re-read real blockers, not
+  stale status/Event text. The status now names the real blocker.
+- ffmpeg frame extraction has a 45-second per-frame timeout (configurable through
+  mosaic/review settings). A failed frame becomes a placeholder rather than an
+  infinite wait.
+- Model queue/metadata construction and each missing chunk mosaic are attempted
+  up to 3 times by default. After repeated failure, the model is recorded as
+  skipped for the current traversal and the resume cursor advances to the next
+  model. One bad model cannot pin the library pass.
+- If the whole-library worker itself crashes outside a per-model guard, its saved
+  cursor is retried automatically after a 5-minute backoff instead of remaining
+  in a permanent error state.
+- The existing durable PC queue still outranks whole-library work when it contains
+  a real queued/running user instruction. Retrying/failed poison jobs retain the
+  v2.10 behavior and do not freeze mosaic production.
+
+Upgrade
+-------
+Stop Mobile Reviewer, overlay the v2.11.3 hotfix/drop-in onto the existing
+CTBRec_Mobile_Reviewer folder, then restart. Fully close/reopen the iPhone PWA
+once so it receives shell cache ctbrec-shell-v2113. Existing config/state/queue
+files are not included in the hotfix and are not replaced.

@@ -1,0 +1,18 @@
+CTBRec Mobile Reviewer v2.15.9 Test Report
+==========================================
+
+Working-tree validation before packaging:
+- 30/30 validation suites PASS.
+- New seekable-cache regression uses real FFmpeg/ffprobe on a generated H.264/AAC MPEG-TS source.
+- Cached MP4 duration remains near the original source duration and a second request is a cache hit.
+- Simulated truncated remux is rejected.
+- Real Chromium confirms non-native TS selects seekable stage, native MP4 selects direct stage, and preview viewport/Prev-Next geometry remains fixed when compatibility UI changes.
+- Existing HTTP Range, multi-file failover, exact-duration, Shift-click, Rapid Sort, mosaic/READY, Recu, Keep Last, and Git Bridge suites remain green.
+
+Final ZIP and patch-overlay validation are performed during release packaging and summarized in the v2.15.9 HANDOFF.
+
+Final package gate:
+- Actual FULL SOURCE ZIP: compile/syntax + 30/30 validation suites PASS.
+- Actual PATCH overlay: 15/15 protected runtime/private sentinels unchanged.
+- PATCH protected-path inventory: PASS.
+- FULL SOURCE starter sanitation: PASS.

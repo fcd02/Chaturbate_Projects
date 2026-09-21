@@ -1,0 +1,29 @@
+CTBRec Mobile Reviewer — Update v2.8 -> v2.8.1
+===================================================
+
+RECOMMENDED
+1. Stop the old server with stop_mobile_reviewer.bat.
+2. Extract the COMPLETE v2.8.1 ZIP into a fresh folder.
+3. In the new folder, run copy_state_from_old_version.bat and point it at your v2.8 CTBRec_Mobile_Reviewer folder.
+   - Your mobile_config.json / secret_key, recording roots, durable queue, Recu state, ready index, catalog and library-pass state are preserved.
+   - The transient old Non-NSFW error state is intentionally not copied.
+   - If models/nudenet_640m.onnx exists, it is copied and then validated on first use.
+4. Run install_mobile_reviewer.bat (no new dependencies, but this verifies the environment).
+5. Run start_mobile_reviewer.bat.
+6. On the phone, fully close/reopen the Home Screen app or Safari page. No service-worker change is required for these backend fixes.
+7. In Settings, press Run Non-NSFW pass now once.
+
+WHAT TO EXPECT
+- If GitHub serves the real 640m weight, the official download is used.
+- If GitHub serves a login/HTML page, the status should move automatically to "verified pinned mirror A" (then B if needed) and download about 104 MB.
+- A valid model is stored at models\nudenet_640m.onnx and reused on later runs.
+- Whole-library mosaics that pause because you use the PC should show a resume position and continue from that model/chunk on the next idle period.
+
+SAFE TO DELETE FROM THE OLD v2.8 FOLDER
+- Any tiny/HTML models\nudenet_640m.onnx copy. The new version can also detect/quarantine it itself.
+
+NO NEED TO DELETE
+- Existing normal mosaics
+- mobile_ready_work_index.json
+- mobile_library_mosaic_state.json (it is now upgraded with a cursor)
+- Non-NSFW scan cache/index; detector fingerprinting still controls compatibility

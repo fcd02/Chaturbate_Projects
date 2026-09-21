@@ -1,0 +1,68 @@
+CTBRec MOBILE REVIEWER 2.4 — UPDATE FROM 2.3
+============================================
+
+WHY THIS UPDATE IS NEEDED
+-------------------------
+The monitor is not involved. Version 2.3 could show an existing JPEG while
+reconstructing its transparent phone tap-grid from different/current mosaic
+settings. That can create stacked black numbers that do not line up with the
+white # labels in the image.
+
+Version 2.4 writes the exact pixel rectangle + source segment number for every
+frame into metadata beside the JPEG. A valid 2.4 mosaic therefore carries its
+own tap map and survives later settings changes or package upgrades.
+
+UPDATE STEPS
+------------
+1. On the PC, stop the existing reviewer with stop_mobile_reviewer.bat or close
+   the old server window.
+2. Extract the ENTIRE 2.4 package into a fresh folder.
+3. Copy your customized recording_roots.txt from the old folder if needed.
+4. Copy your old mobile_config.json if it contains settings you want to retain
+   (especially Chrome path / idle settings). Missing 2.4 settings are filled in
+   automatically.
+5. Optional but useful:
+   - copy mobile_recu_session.json to retain the captured Recu session;
+   - copy mobile_action_queue.json ONLY if there are pending queued sorting
+     instructions that still need to run.
+6. Do NOT copy mobile_mosaic_layout_cache.json unless troubleshooting requires
+   it. New 2.4 mosaics keep their authoritative layout beside the JPEG instead.
+7. Run install_mobile_reviewer.bat. No new dependency is required; this verifies
+   Python, Pillow, websocket-client and FFmpeg.
+8. Run start_mobile_reviewer.bat.
+9. On the iPhone, fully close/reopen the Home Screen app or hard-refresh Safari.
+10. Open Settings -> Mosaic layout and confirm both options are ON:
+      Reuse valid existing Originals mosaics
+      Reuse valid existing Review mosaics
+11. Reopen the chunk that showed the stacked numbers.
+
+WHAT TO EXPECT FROM OLD MOSAICS
+-------------------------------
+- If an old mosaic has a trustworthy v2.3 hit-map, it can be reused.
+- If its map is missing or geometrically inconsistent, 2.4 intentionally shows
+  no clickable overlay and regenerates THAT mosaic once to create the exact
+  sidecar. This is a safety migration, not repeated regeneration.
+- After a valid v2.4 sidecar exists, the mosaic is reused unless the source
+  signature changes, reuse is disabled, or you press Redo.
+
+NUMBERING
+---------
+Multiple frames may legitimately have the same number: those frames are sampled
+at different times from the same source segment/file. The key invariant is that
+the black phone badge on each frame must match the white # number embedded in
+that frame.
+
+BACK BUTTON
+-----------
+Back is now available beside Ahead/Redo and on the Model-complete screen.
+- Back after Skip returns the skipped chunk to the front.
+- Back after Submit restores the prior selections.
+- If the move is still queued it is cancelled.
+- If files already moved, the PC restores them to their exact original paths.
+- It refuses to overwrite if both an original and destination exist.
+
+FIRST REAL TEST
+---------------
+While at the PC, use a non-critical model/chunk. Confirm black badges line up
+with the embedded white # labels, submit one choice, then press Back and verify
+that the file returns to its original folder before relying on remote use.

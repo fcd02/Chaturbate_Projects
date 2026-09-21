@@ -1,0 +1,35 @@
+CTBRec Mobile Reviewer v2.15.9
+================================
+
+Preview performance / container handling
+- Added a temporary seekable preview MP4 cache for recordings whose original container is not reliably browser-native.
+- Cache build uses FFmpeg stream copy (`-c copy`) only; H.264/AAC TS recordings are rewrapped, not re-encoded.
+- Cache identity includes normalized source path, file size, and mtime. Source changes therefore invalidate the wrapper automatically.
+- Cache output is written atomically and rejected if missing, tiny, or (when source duration is known) shorter than 90% of source duration.
+- Completed wrappers are served through the existing HTTP Range path, giving ordinary native seeking instead of restarting a live FFmpeg pipe on each scrub.
+- Cache is reused across preview opens/server restarts while fresh, with age and total-size pruning (`video_preview.cache_hours`, `video_preview.seekable_cache_max_gb`, default 8 GB).
+- Preview Diagnostics records seekable-cache start/complete/hit/failure/HTTP-error events.
+
+Automatic playback ladder
+- Desktop MP4/M4V/MOV remains direct original-file Range playback.
+- Non-native desktop containers (including true TS/MPEGTS/M2TS/MTS) skip the known-bad raw-browser attempt and start with seekable zero-reencode MP4 cache.
+- Native Direct/HLS failure now tries seekable cached MP4 before Compatibility.
+- Seekable-cache failure automatically falls to Compatibility; method failure still never advances to the next selected recording.
+- Legacy live remux remains supported internally but is no longer the preferred desktop TS path.
+
+Stable preview UI
+- Preview video viewport has a fixed responsive height across Direct, seekable remux, HLS, streaming remux, and Compatibility.
+- Video uses `object-fit: contain`; differing source resolution/aspect ratio no longer changes modal geometry.
+- Preview status text reserves a fixed-height region.
+- Compatibility action remains in the layout and changes state instead of disappearing, so Prev/Next and the scrub area do not jump.
+
+Evidence
+- Smooth field diagnostic: MP4/H.264/AAC, direct Range playback, ~50–160 ms seek completion.
+- Slow field diagnostic: MPEG-TS/H.264/AAC, Chromium `DEMUXER_ERROR_COULD_NOT_OPEN`; old live remux ended at ~0.194 s of a ~750.4 s source; Compatibility restarts required ~2–3 s startup per seek.
+
+Validation
+- Added `validation/validate_v2_15_9_preview_seekable_cache.py`.
+- Synthetic H.264/AAC MPEG-TS is stream-copy remuxed to near-full-duration MP4 and reused from cache.
+- Simulated truncated remux is rejected.
+- Real Chromium verifies TS chooses seekable cache, MP4 chooses direct, and preview/control geometry does not move when compatibility controls switch.
+- Complete inherited suite: 30/30 PASS before packaging.

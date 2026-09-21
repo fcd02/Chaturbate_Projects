@@ -1,0 +1,121 @@
+CTBRec Mobile Reviewer v2.13.0 — Validation Report
+==================================================
+Validation date: 2026-09-10
+Source baseline: v2.12.0
+Release focus: iPhone/PWA crash/PIN resilience, tab/model latency, server hot-path
+caching, bounded rendering, lightweight polling, and batched FFmpeg extraction.
+
+1. Python / JavaScript syntax
+-----------------------------
+PASS: all top-level Python modules compiled with py_compile.
+PASS: static/app.js, static/rapid.js, and static/service-worker.js pass node --check.
+
+2. PWA/browser regression simulation
+------------------------------------
+Executable: validation/validate_v2_13_browser_dom.py
+PASS: three consecutive synthetic bootstrap HTTP 503 failures do NOT show PIN.
+PASS: app automatically recovers when bootstrap becomes available.
+PASS: a deliberately slow Review catalog response cannot overwrite a later Easy
+      Sort selection.
+PASS: a synthetic 4,100-model catalog reports the full logical count.
+PASS: the 4,100-model catalog renders a bounded progressive DOM (<=240 cards in
+      the validation window rather than 4,100 simultaneous nodes).
+PASS: durable paired-token code path is available.
+PASS: frame selection updates in place without rebuilding mosaic/file DOM.
+
+Note: direct localhost navigation in the provided Chromium environment is blocked
+by an administrator policy. The equivalent source is therefore loaded through
+Playwright set_content with deterministic fetch mocks. This exercises the actual
+current app.js/rapid.js DOM and request-ordering logic without relying on local
+network navigation.
+
+3. Server/cache/open-fast validation
+------------------------------------
+Executable: validation/validate_v2_13_core.py
+PASS: paired-device token changes when the installation secret changes and is
+      stable for the same secret.
+PASS: Easy Sort/Hidden/Ignore filter cache does not rebuild for unchanged legacy
+      files and rebuilds after the source file changes.
+PASS: server catalog view cache returns equivalent rows on a cache hit and
+      invalidates after model-admin/catalog stamp changes.
+PASS: lightweight queue status does not invoke mosaic layout/JPEG geometry logic.
+PASS: open-fast validates exactly the configured warm set of 3 ready chunks from
+      a synthetic 10-row ready snapshot before returning.
+
+4. HTTP/static delivery
+-----------------------
+Executable: validation/validate_v2_13_http.py
+PASS: server responds over HTTP/1.1.
+PASS: large JSON response is gzip-compressed when Accept-Encoding includes gzip.
+PASS: static app.js is streamed successfully through the new send_file path.
+
+5. Original / Review FFmpeg batching
+------------------------------------
+Executable: validation/validate_v2_13_ffmpeg_batch.py
+Synthetic media generated with system FFmpeg.
+PASS: Original mosaic helper: 4 requested frames -> 1 FFmpeg process.
+PASS: Review mosaic helper: 4 requested frames -> 1 FFmpeg process.
+All expected JPEG outputs exist.
+
+6. Non-NSFW FFmpeg batching and fallback
+----------------------------------------
+Executable: validation/validate_v2_13_nsfw_batch.py
+PASS: Non-NSFW sample extraction batches three exact timestamps in one FFmpeg
+      process. A wrapper deliberately removes one batch output; only that missing
+      image is retried with the single-frame path. Classification still completes
+      safely with all expected samples.
+PASS: Non-NSFW cleanup mosaic: 4 requested tiles -> 1 FFmpeg process.
+
+7. NudeNet model integrity
+--------------------------
+PASS: bundled models/nudenet_640m.onnx size = 103,538,690 bytes.
+PASS: SHA-256 = 04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb.
+
+8. Full mobile_self_test status in this Linux validation environment
+--------------------------------------------------------------------
+PARTIAL / ENVIRONMENT LIMITATION: mobile_self_test.py correctly stops because the
+'nudenet' Python package is not installed in this tool container. The application
+module itself compiles, the bundled ONNX file is hash-verified, and the new
+Non-NSFW extraction paths are exercised with a deterministic fake detector plus
+real FFmpeg. On Windows, install_mobile_reviewer.bat installs requirements.txt
+before running mobile_self_test.py.
+
+9. Safety/compatibility checks retained by source audit
+-------------------------------------------------------
+PASS: v2.12 precise Review frame-cut durable job path remains present.
+PASS: clips_verified / verify-before-original-deletion guard remains present.
+PASS: v2.11.3 active sorting queue lease and bounded model retry/skip remain.
+PASS: v2.11 identity-verified LiveCTBRecBridgeClient remains; no models.json
+      mutation fallback was introduced.
+PASS: mutation API calls remain single-attempt; only idempotent GETs retry.
+PASS: existing mosaic signatures/sidecars were not version-invalidated merely for
+      the process-batching change.
+
+10. Upgrade-overlay state preservation
+--------------------------------------
+PASS: a seeded v2.12 installation was given unique sentinel content in all of the
+following protected files/state locations, then the v2.13 PATCH was overlaid:
+- mobile_config.json
+- recording_roots.txt
+- mobile_action_queue.json
+- mobile_recu_session.json
+- mobile_catalog_cache.json
+- mobile_ready_work_index.json
+- mobile_library_mosaic_state.json
+- mobile_model_metadata.json
+- mobile_hidden_models.json
+- recu_browser_profile/sentinel.txt
+- models/nudenet_640m.onnx
+All remained byte-for-byte SHA-256 identical after the overlay. v2.13 server/PWA
+files were confirmed to have landed successfully.
+
+Overall status
+--------------
+Implementation: PASS.
+Targeted regression tests: PASS.
+Seeded v2.12 -> v2.13 state-preservation overlay: PASS.
+Clean final-package extraction/syntax/reproducible-validation gate: PASS. Both
+FULL_SOURCE and PATCH candidate archives were extracted into fresh directories.
+The patch contained no protected runtime state; all 13 Python files compiled;
+app.js, rapid.js, and service-worker.js passed node --check; and all five v2.13
+validation programs passed from the freshly extracted FULL_SOURCE archive.

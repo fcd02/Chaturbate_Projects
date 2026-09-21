@@ -1,0 +1,57 @@
+CTBRec Mobile Reviewer v2.14.4 — Validation Report
+Date: 2026-09-14
+
+SCOPE
+- Durable completion of the whole-library mosaic pass across pause/restart/catalog-size changes.
+- Removal of arbitrary operational Settings maxima.
+- Automatic refresh of model tile byte totals after catalog scans.
+- Duplicate/stale mosaic cleanup and strict mobile hit-map validation.
+- Rebuild-chunk-from-disk + forced authoritative mosaic regeneration.
+- End-relative filename metadata for newly kept media.
+
+SOURCE CHECKS — PASS
+- All 9 top-level Python modules compile.
+- static/app.js passes `node --check`.
+- static/rapid.js passes `node --check`.
+- Server version is CTBRecMobile/2.14.4.
+- PWA shell cache is v2144.
+
+V2.14.4 REGRESSION — PASS
+validation/validate_v2_14_4_mosaic_integrity.py verified:
+1. Whole-library pass fingerprint is identical when only model bytes/drives change.
+2. Ordered model identity changes still change the pass fingerprint.
+3. Durable mobile_library_mosaic_plan.json save/load round-trip preserves pass order/fingerprint.
+4. Operational numeric Settings fields no longer contain arbitrary HTML max attributes.
+5. Client invalidates/refreshes visible model lists after any catalog updated_at change while preserving render window.
+6. Rebuild chunk + mosaic UI/API and source-identity purge are present.
+7. v3 hit-map validation checks expected file order AND expected local frame timestamps.
+8. End-relative naming produces `_endminus_15m00s_to_0m00s` for the final 15m of a 2h chunk.
+9. Real synthetic two-video Original mosaic generated via actual FFmpeg/Pillow.
+10. Generated sidecar has exact frame indices/local seconds/per-source durations.
+11. Regenerating with a changed tiles-per-image layout removes all stale old multipart JPEGs.
+
+FULL REGRESSION SET — PASS
+- validate_v2_13_1_recovery.py
+- validate_v2_13_2_catalog_abort.py
+- validate_v2_13_3_field_regressions.py
+- validate_v2_13_browser_dom.py
+- validate_v2_13_core.py
+- validate_v2_13_ffmpeg_batch.py
+- validate_v2_13_http.py
+- validate_v2_13_nsfw_batch.py
+- validate_v2_14_1_preview_disk.py
+- validate_v2_14_1_recu_auth_resilience.py
+- validate_v2_14_1_scroll_reset.py
+- validate_v2_14_2_recu_legacy_capture.py
+- validate_v2_14_3_recu_explicit_capture.py
+- validate_v2_14_4_mosaic_integrity.py
+- validate_v2_14_recu_incremental.py
+
+NOTES
+- mobile_self_test.py cannot fully pass in the Linux build container because `nudenet` is not installed there. This is an environment/dependency check, not a source failure. The complete Python/JS/regression suite above passes, including NSFW batching tests that use controlled fakes. On the user's Windows installation, install_mobile_reviewer.bat previously showed NudeNet 3.4.2 installed.
+- Semantic/intrinsic ranges remain bounded (e.g. TCP ports, probability/confidence values, JPEG quality). Arbitrary operational maxima were removed.
+
+PACKAGING GATES
+- Final FULL archive clean-extraction validation: PASS. Extracted archive compiled all 9 top-level Python modules, passed JS syntax checks, and passed every validation/*.py suite from the extracted archive.
+- PATCH overlay runtime-state hash preservation: PASS. Seeded v2.14.3 install retained 14 representative runtime/private files byte-for-byte, including config, roots, action queue, catalog/READY/library state, the new traversal plan, NSFW state, model metadata, hidden metadata, Recu session/cache/profile sentinel, and bundled NudeNet model.
+- Overlayed code compiled and the v2.14.4 integrity regression passed after the patch overlay.

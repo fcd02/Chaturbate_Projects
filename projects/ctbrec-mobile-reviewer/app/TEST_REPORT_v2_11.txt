@@ -1,0 +1,114 @@
+CTBRec Mobile Reviewer v2.11 — Test / Release Report
+=====================================================
+Test date: 2026-08-27
+Baseline: verified v2.10 full/drop-in supplied in CTBRec_v2_11_NEW_CHAT_HANDOFF_BUNDLE
+Scope: v2.11 live-bridge integration plus release/regression validation in isolated temporary roots.
+No real user recording folders or live CTBRec configuration files were modified.
+
+A. LIVE BRIDGE CLIENT / IDENTITY SAFETY — PASS
+-----------------------------------------------
+PASS: Correct synthetic bridge PING identity accepted.
+PASS: Exact instance hash uses the same sha256(normcase(resolved CTBRec dir))[:20] algorithm as Live Control.
+PASS: LIST model cache parsed.
+PASS: STATUS response parsed/cached when LIST omits status.
+PASS: Correct bridge with registered=false blocks mutation and immediately disables native controls.
+PASS: Wrong CTBRec instance blocks mutation; only PING is transmitted and native controls immediately become unhealthy.
+PASS: Every mutation is preceded immediately by a fresh PING identity check.
+PASS: PRIORITY wire framing/result/cache update.
+PASS: PAUSE and RESUME wire framing/result.
+PASS: MARK_LATER wire framing/result.
+PASS: FORCE_PRIORITY and NORMAL_PRIORITY wire framing/result.
+PASS: ADD_URL wire framing/result.
+PASS: REMOVE wire framing/result.
+PASS: Deliberately dropped mutation response raises an ambiguous-response error and sends the mutation only once; no unsafe replay.
+PASS: Bridge outage is surfaced as unavailable while Reviewer-only metadata/sorting controls remain usable.
+PASS: Multiple/discovered configuration logic never chooses an ambiguous live target unless exactly one candidate identity matches; explicit controller_config.json remains available.
+
+B. MODEL ADMIN — PASS
+---------------------
+PASS: v2.10 legacy Easy Sort notes are still recognized from read-only models.json.
+PASS: New Easy Sort override persists in Reviewer sidecar and models.json remains byte-for-byte unchanged.
+PASS: Hide persists in Reviewer sidecar and is reversible.
+PASS: Priority/Favorite mutates live bridge only; models.json remains byte-for-byte unchanged.
+PASS: Pause/Resume mutates live bridge only; models.json remains byte-for-byte unchanged.
+PASS: Record Later and Force Priority mutate live bridge only; models.json remains byte-for-byte unchanged.
+PASS: Alias uses live ADD_URL and stores alias grouping in Reviewer sidecar; models.json unchanged.
+PASS: Ignore strategy is explicit: live REMOVE + Reviewer ignore sidecar + durable deletion-folder queue; no false claim of persistent native CTBRec IGNORE.
+PASS: Existing bridge was inspected and confirmed to expose REMOVE but no native IGNORE command.
+PASS: No silent models.json mutation fallback exists in v2.11 model admin.
+
+C. END-TO-END REVIEWER HTTP -> LIVE BRIDGE — PASS
+-------------------------------------------------
+PASS: Launched the actual v2.11 ctbrec_mobile_server.py in an isolated runtime.
+PASS: /api/model-admin loaded a synthetic live CTBRec model through the bridge cache.
+PASS: /api/model-admin/update priority action reached the synthetic JVM bridge with immediate PING -> PRIORITY order.
+PASS: Favorite maps to bridge priority 1000.
+PASS: After changing the synthetic bridge to a different instance identity, the same HTTP mutation returned HTTP 400 and NO PRIORITY command was transmitted.
+
+D. v2.10 SORT-FIRST / QUEUE REGRESSION — PASS BY VERIFIED BASELINE + SOURCE IDENTITY
+------------------------------------------------------------------------------------
+v2.11 was intentionally scoped away from the already-verified sorting/queue workers. The following 14 critical server function bodies are byte/source-hash identical to the verified v2.10 baseline:
+- _source_identity_from_descriptors
+- _source_identity_for_chunk
+- _existing_job_for_source_identity
+- _process_queued_move
+- _process_action_job
+- _action_loop
+- _durable_action_work_pending
+- _mosaic_work_preempts_actions
+- quick_load_queue
+- _merge_ready_chunks_into_queue
+- prioritize_model_mosaics
+- request_interactive_mosaic
+- _align_chunk_files_to_mosaic_sources
+- submit_current_fast
+
+Therefore the v2.10 release-verified behaviors remain unchanged in v2.11, including:
+- duplicate/reordered source-set protection;
+- idempotent handling of stale already-moved sources;
+- terminal failure after the configured maximum attempts (3);
+- failed/retrying-only work does not freeze whole-library passes;
+- batching/checkpointing of durable file jobs;
+- current/requested model mosaic work preempts file batches between files;
+- existing mosaics open immediately;
+- ready chunks remain largest-to-smallest;
+- clicked-model missing mosaics are promoted;
+- next-ready/Next Model behavior;
+- Recu remains enrichment only;
+- authoritative mosaic sidecar source order remains unchanged.
+
+The exact v2.10 baseline test report and implementation were retained in the FULL package for historical verification.
+
+E. STATIC / UI VALIDATION — PASS
+--------------------------------
+PASS: Every bundled Python file compiles.
+PASS: Node syntax validation passed for every bundled static/*.js file.
+PASS: DOM integrity check found 177 JavaScript $() ID references and zero missing matching HTML IDs.
+PASS: Server identifies as CTBRecMobile/2.11.
+PASS: Service worker namespace is ctbrec-shell-v2110.
+PASS: UI contains CTBRec LIVE pill, Pause/Resume, Record Later, Force/Normal Priority, Favorite/priority, alias, Hide, Easy Sort, Keep Last and Ignore controls.
+PASS: Settings exposes bridge auto-discovery, explicit controller_config.json, optional direct CTBRec directory and bridge port.
+PASS: Legacy models.json controls are labeled read-only.
+
+F. PACKAGE / STATE-PRESERVATION VALIDATION — PASS
+--------------------------------------------------
+PASS: Built FULL from the verified v2.10 FULL package and overlaid only v2.11 release changes.
+PASS: FULL mobile_config.json has blank access_pin and blank secret_key.
+PASS: FULL durable action queue is empty.
+PASS: No runtime logs, PID, Recu profile/session, catalogs/caches or Reviewer sidecars are shipped as active state.
+PASS: Verified bundled NudeNet 640m model is exactly 103,538,690 bytes.
+PASS: NudeNet 640m SHA-256 = 04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb.
+PASS: DROP-IN contains no mobile_config.json, recording_roots.txt, action queue, Recu session, Reviewer sidecars or NudeNet model.
+PASS: Seeded a v2.10 install with live-state sentinel files, overlaid the v2.11 DROP-IN, and verified byte-for-byte hashes were unchanged for:
+  mobile_config.json; recording_roots.txt; mobile_action_queue.json; mobile_recu_session.json;
+  mobile_hidden_models.json; mobile_model_metadata.json; mobile_catalog_cache.json; models/nudenet_640m.onnx.
+PASS: Python/JS validation and both v2.11 bridge tests passed against the FULL release tree.
+PASS: Python/JS validation and both v2.11 bridge tests passed against a v2.10 + DROP-IN overlay tree.
+
+ENVIRONMENT LIMITATION
+----------------------
+The Linux packaging environment does not have the Python `nudenet` package installed, so mobile_self_test.py reports NudeNet MISSING/BROKEN here. This does not affect the bridge integration tests. The FULL package retains the previously verified 640m ONNX model with the exact known-good size/hash above, and install_mobile_reviewer.bat remains the Windows dependency installation/verification path.
+
+RELEASE RESULT
+--------------
+v2.11 is ready for FULL and DROP-IN packaging. The final ZIPs are re-extracted and validated once more after this report is embedded; final SHA-256 values are supplied in SHA256SUMS_v2_11.txt.

@@ -1,0 +1,10 @@
+Update v2.14.1 -> v2.14.2
+
+1. Stop Mobile Reviewer.
+2. Overlay the v2.14.2 PATCH onto the existing CTBRec_Mobile_Reviewer folder.
+3. Restart Mobile Reviewer.
+4. Fully close/reopen the iPhone Home Screen app once (PWA cache v2142).
+5. Open the dedicated Recu Chrome profile and make sure the visible page is verified/logged in.
+6. Tap Capture verified session. Capture no longer forces a navigation test; it stores the exact browser cookies/User-Agent and restores the proven persistent-session fetch method.
+
+The patch does not include or replace mobile_config.json, recording_roots.txt, queues, Recu cache/session, catalog state, mosaic state, or the Recu browser profile.

@@ -1,0 +1,45 @@
+CTBRec Mobile Reviewer 2.5 RAPID
+================================
+
+PHONE LATENCY / READY WORK
+- Added durable prepared-work index: mobile_ready_work_index.json.
+- Whole-library generation updates prepared snapshots as each chunk becomes ready.
+- Model list annotates prepared chunk counts without scanning every mosaic file.
+- Added quick-load path that opens a prepared model directly from its snapshot.
+- Added ready-work hopper/suggestions when the requested model is not ready.
+- Submit and Skip now advance in the same HTTP response; no normal task polling.
+- Redo, Ahead, and Recu refresh are fire-and-continue operations.
+
+DURABLE PC ACTION QUEUE
+- Originals and Review submissions are written immediately to mobile_action_queue.json.
+- Permanent model deletion is now a durable PC job. The phone confirms cached model
+  sizes; the PC recursively enumerates and revalidates files only when the worker runs.
+- Back is latency-first. It cancels an unstarted job immediately or queues a
+  high-priority undo after restoring the previous chunk on the phone.
+- Restart recovery and idempotent retry behavior are retained.
+
+OFFLINE PHONE MODE
+- Added installable/offline web-app manifest and service worker.
+- Added offline packs containing only already-generated mosaics and exact v2.4+ hit maps.
+- Mosaic bytes are cached in browser Cache Storage; bundle metadata and unsynced
+  decisions are stored in IndexedDB.
+- Offline submissions are durable on the phone before advancing.
+- Reconnect sync uses signed work tokens + client action IDs for idempotency.
+- PC rejects stale offline work if a source file is missing or its size/mtime changed.
+- Sync happens on app/open online events or explicit Sync queued; it does not assume
+  closed-app iPhone background synchronization.
+
+PERFORMANCE
+- Catalog ready badges and ready suggestions use prepared snapshot metadata rather than
+  stat'ing every mosaic on external drives; real file validity is checked only when work
+  is actually opened/downloaded.
+- Offline media have stable opaque URLs so the service worker can cache them efficiently.
+- Interactive work and durable action jobs remain higher priority than whole-library
+  mosaic generation.
+
+FILES
+- New static/rapid.js
+- New static/service-worker.js
+- New static/manifest.webmanifest
+- New runtime mobile_ready_work_index.json
+- New runtime mobile_offline_sync_history.json

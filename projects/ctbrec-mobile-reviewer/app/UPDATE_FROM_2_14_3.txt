@@ -1,0 +1,17 @@
+Update v2.14.3 -> v2.14.4
+
+1. Stop CTBRec Mobile Reviewer.
+2. Extract `CTBRec_Mobile_Reviewer_v2_14_4_PATCH.zip`.
+3. Overlay its `CTBRec_Mobile_Reviewer` contents onto your existing installation and allow replacement.
+4. Restart Reviewer.
+5. Fully close/reopen the iPhone Home Screen/PWA once so shell cache v2144 is active.
+
+The patch intentionally does NOT contain your active `mobile_config.json`, `recording_roots.txt`, action queue, catalog/READY/background states, Recu session/profile/cache, model metadata, existing mosaics, or NudeNet model.
+
+Important traversal behavior:
+- An in-progress whole-library pass now keeps a durable pass snapshot/cursor in `mobile_library_mosaic_plan.json`.
+- Changing model sizes while the pass runs will not reorder/reset that current pass.
+- Newly appearing models and new largest-first byte ordering are picked up after the current pass completes and the next pass begins.
+
+New recovery action:
+- While sorting an Original or Review chunk, `Rebuild chunk + mosaic` rechecks the actual model folder contents before deleting/regenerating the mosaic. It reports missing previously expected files and newly discovered files incorporated into the current chunk.

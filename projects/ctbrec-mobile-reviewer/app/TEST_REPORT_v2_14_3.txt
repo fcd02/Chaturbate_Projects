@@ -1,0 +1,106 @@
+CTBRec Mobile Reviewer v2.14.3 — Validation Report
+===================================================
+
+Release focus
+-------------
+Fix the field-confirmed Recu false-verification loop in v2.14.2 by matching the
+known-working Recu Clip Model Counter v2.4.1 verification methodology.
+
+Field evidence reviewed
+-----------------------
+- User screenshot: normal accessible Recu homepage visibly loaded while Reviewer
+  reported that verification was still required.
+- CTBRec_Mobile_Reviewer_Diagnostics_20260911_222001.zip.
+- mobile_reviewer(1).log.
+- recu_clip_model_counter_v2_4_1_MOBILE_REVIEWER_SHARED_PROFILE_FULL(1).zip.
+
+Observed field failure
+----------------------
+- POST /api/recu/capture returned HTTP 400 repeatedly at 22:18:57, 22:19:01,
+  22:19:11 and 22:19:29.
+- Earlier browser fallback classified normal Recu navigation as
+  RecuReauthRequired even after the user had visibly passed the human-check.
+- v2.14.2 used challenge strings broader than the field-proven reference,
+  including generic Cloudflare helper/script markers that can exist on a normal
+  page.
+
+v2.14.3 behavior under test
+----------------------------
+- Capture is explicit-user-confirmation driven.
+- Capture calls Browser.getVersion + Storage.getCookies only; it does not inspect
+  page DOM, navigate, or require an HTTP probe.
+- Challenge markers are exactly: cf-chl-, verify you are human, just a moment,
+  checking your browser.
+- Generic challenge-platform / Cloudflare Ray ID strings do not imply a challenge.
+- Public Sign In/password markup does not imply login failure; only a real login
+  URL redirect does.
+- A normal public Recu shell can represent a legitimate empty listing.
+- If no Recu cookie is exported, Capture still succeeds and selects Chrome
+  navigation instead of looping.
+- Recu session schema is 2143.
+
+Automated checks
+----------------
+PASS Python compileall.
+PASS Node syntax: static/app.js.
+PASS Node syntax: static/rapid.js.
+PASS validate_v2_13_1_recovery.py.
+PASS validate_v2_13_2_catalog_abort.py.
+PASS validate_v2_13_3_field_regressions.py.
+PASS validate_v2_13_browser_dom.py (4,100-model mobile/race suite).
+PASS validate_v2_13_core.py.
+PASS validate_v2_13_ffmpeg_batch.py.
+PASS validate_v2_13_http.py.
+PASS validate_v2_13_nsfw_batch.py.
+PASS validate_v2_14_1_preview_disk.py.
+PASS validate_v2_14_1_recu_auth_resilience.py.
+PASS validate_v2_14_1_scroll_reset.py.
+PASS validate_v2_14_2_recu_legacy_capture.py (compatibility).
+PASS validate_v2_14_3_recu_explicit_capture.py (new field regression).
+PASS validate_v2_14_recu_incremental.py.
+
+New exact regression assertions
+-------------------------------
+PASS normal Recu HTML containing challenge-platform + Cloudflare Ray ID + Sign In
+     + a hidden password field is NOT classified as a challenge/login failure.
+PASS actual cf-chl-/Just a moment HTML IS classified as a challenge.
+PASS Capture succeeds without _page_target(), Runtime.evaluate, Page.navigate or
+     raw-HTTP probe.
+PASS Cookie/User-Agent session is persisted with schema_version=2143.
+PASS no-cookie Capture selects verified Chrome navigation instead of failing.
+PASS public normal-shell empty listing is accepted.
+
+Environment note
+----------------
+The generic mobile_self_test.py cannot fully pass inside this Linux build
+container because NudeNet is not installed here. Dedicated product regression
+suites and syntax/compile checks are green. On the user's Windows install NudeNet
+was already present in prior self-test output.
+
+Required real-PC field gate
+---------------------------
+1. Install v2.14.3 PATCH over v2.14.2 and restart Reviewer.
+2. Fully close/reopen iPhone PWA (cache v2143).
+3. Start Recu browser. If normal Recu content is visible, do not sign in merely
+   because the public header shows Sign In.
+4. Complete Cloudflare only if a human-check page is actually shown.
+5. Tap Capture current session.
+6. Expected: HTTP 200; capture does not navigate/reload the Recu tab.
+7. Refresh Recu on an Original model and then a Review model.
+8. Cookie HTTP may fall back to Chrome navigation on 403. Reverification should
+   be requested only if the real navigation sees one of the four proven challenge
+   markers or actually lands on a login route.
+
+Release packaging validation
+----------------------------
+PASS final PATCH excludes runtime/private state.
+PASS v2.14.2 seeded runtime-state overlay retained byte-identical hashes for all
+     runtime files present in the sanitized baseline (config, roots, action queue,
+     catalog/READY/model metadata where present).
+PASS final FULL SOURCE ZIP extracted cleanly.
+PASS extracted archive Python compileall.
+PASS extracted archive JS syntax.
+PASS extracted archive v2.14.3 explicit-capture regression.
+PASS extracted archive v2.14.2 compatibility regression.
+PASS extracted archive v2.14 incremental Recu regression.
+PASS extracted archive v2.14.1 auth-resilience regression.

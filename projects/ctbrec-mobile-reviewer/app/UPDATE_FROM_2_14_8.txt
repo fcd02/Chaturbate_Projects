@@ -1,0 +1,12 @@
+CTBRec Mobile Reviewer — Update v2.14.8 -> v2.14.9
+
+1. Stop Mobile Reviewer.
+2. Extract/overlay CTBRec_Mobile_Reviewer_v2_14_9_PATCH.zip onto the existing v2.14.8 installation.
+3. Do NOT replace your runtime config, roots, queues, catalog/READY files, Recu profile/session, model metadata, or media. The patch does not contain them.
+4. Restart Reviewer.
+5. Fully close/reopen the iPhone Home Screen PWA once so shell cache v2149 loads.
+
+What changed:
+- Opening a model no longer re-runs sidecar recovery when the READY queue already covers its compatible mosaics.
+- Reindex/recovery status appears only when additional existing mosaics were actually recovered.
+- Existing mosaics remain reusable based on trustworthy source/layout metadata, regardless of which recent app release generated them.

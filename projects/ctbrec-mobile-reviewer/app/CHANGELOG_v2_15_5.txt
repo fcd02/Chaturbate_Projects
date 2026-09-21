@@ -1,0 +1,11 @@
+CTBRec Mobile Reviewer v2.15.5
+
+- Fixed platform-dependent direct-video MIME handling. .ts is now always served as video/mp2t (and other supported containers use explicit video MIME mappings) instead of trusting Windows/Python registry mappings that can classify .ts as text.
+- Direct-preview startup watchdog now remains armed until the browser reaches canplay/playing. Loading metadata alone no longer suppresses automatic failover.
+- Direct seek stalls now automatically fall back at the requested source timestamp rather than restarting from the beginning.
+- Remux/compatibility fallback streams now support responsive source-timestamp seeking: native seek attempts or the new Fast seek bar restart FFmpeg at the selected absolute source time instead of waiting on a non-seekable live pipe.
+- Added one-click Export preview diagnostics ZIP. It contains browser preview events, server byte-range requests/timings, ffprobe metadata, preview settings, and a bounded server-log tail; it never includes video/media bytes. It can contain model/file names and local paths.
+- Added TS-only size model ordering. Exact .ts bytes are accumulated during the ordinary catalog scan; after one Rescan on an old catalog, models with no .ts bytes are hidden and remaining models sort by .ts bytes descending while total model size remains visible.
+- Hardened Shift-click range selection by tracking Shift on keyboard and pointerdown, not only click.shiftKey. Normal click remains additive/toggle behavior. Real Chromium regression verifies inclusive range selection.
+- Preserved v2.15.4 queue lease recovery, v2.15.3 pending-open recovery, v2.15.2 bounded active-model look-ahead, mosaic generation/READY semantics, Recu, Keep Last, and background-library behavior.
+- Version: CTBRecMobile/2.15.5; PWA shell ctbrec-shell-v2155; static assets ?v=2155.

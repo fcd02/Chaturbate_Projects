@@ -1,0 +1,12 @@
+CTBRec Mobile Reviewer v2.14.9
+
+- Sidecar recovery on model-open is now conditional rather than unconditional.
+- If the READY queue already covers compatible sidecar-backed mosaics, no sidecar reindex is performed.
+- The UI/status no longer says mosaics were reindexed when recovery added zero mosaics.
+- When recovery adds work, status reports the exact count of additional valid existing mosaics recovered.
+- Existing mosaic reuse remains method/metadata based, not release-version based. Compatible older mosaics remain reusable.
+- Rebuild chunk + mosaic remains scoped to the current chunk/current model.
+- Preserves v2.14.8 exact-model demand-only generation and video fallback behavior.
+
+Version: CTBRecMobile/2.14.9
+PWA cache: ctbrec-shell-v2149

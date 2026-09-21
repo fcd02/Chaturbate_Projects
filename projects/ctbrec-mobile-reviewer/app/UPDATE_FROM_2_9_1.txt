@@ -1,0 +1,36 @@
+CTBRec Mobile Reviewer — update v2.9.1 to v2.10
+
+RECOMMENDED: use the v2.10 DROP-IN over your current working v2.9.1 folder.
+
+1. Run stop_mobile_reviewer.bat.
+2. Extract the v2.10 DROP-IN ZIP.
+3. Copy its CTBRec_Mobile_Reviewer contents over your existing installation and allow replacement.
+4. Run start_mobile_reviewer.bat.
+5. Fully close the iPhone Home Screen app/Safari tab and reopen it once. The shell cache changed from v291 to v2100.
+
+No pip/install step is required. v2.10 adds one local Python module but no new dependency.
+
+The DROP-IN intentionally does NOT replace:
+- mobile_config.json, recording_roots.txt, access PIN, or secret;
+- models/nudenet_640m.onnx;
+- existing mosaics, ready indexes, Non-NSFW results, Recu state, or caches;
+- mobile_action_queue.json or its current queued/history jobs;
+- keeplasts.txt, CTBRec models.json, or mobile-only hidden state.
+
+First v2.10 startup automatically:
+- adds source-set identities to older queue jobs that have file descriptors;
+- converts legacy blocked jobs to terminal failed history;
+- migrates only the exact v2.9.1 8-attempt / 900-second defaults to 3 / 300.
+
+To enable CTBRec model controls:
+- Open Mobile Settings.
+- Leave auto-discovery enabled, or enter full paths to the active CTBRec models.json files, one per line.
+- Save Settings.
+- Open an Originals/Review/Easy Sort/Hidden mosaic. Model controls load after the mosaic is interactive.
+
+Safety:
+- Every models.json write first creates a .before_mobile_reviewer_*.bak file beside it.
+- Hide is phone-only and reversible.
+- Pause changes CTBRec suspended.
+- Ignore is intentionally broad: CTBRec ignore metadata is updated and matching recording folders are queued for MARKED_FOR_DELETION.
+- Permanent file deletion still requires the separate Delete Queue typed confirmation.

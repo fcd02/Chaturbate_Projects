@@ -1,0 +1,19 @@
+UPDATE v2.13.2 -> v2.13.3
+
+1. Stop CTBRec Mobile Reviewer.
+2. Extract CTBRec_Mobile_Reviewer_v2_13_3_PATCH.zip.
+3. Copy/overlay the included CTBRec_Mobile_Reviewer folder onto your existing installation and allow changed files to replace old files.
+4. DO NOT delete your runtime files, mosaics, model folders, Recu profile, queue, or catalog.
+5. Start Reviewer again.
+6. Fully kill the iPhone Home Screen/PWA app once and reopen it so service-worker cache v2133 loads.
+7. Run install_mobile_reviewer.bat once if desired; the obsolete v2.13.2 AbortController self-test failure is fixed.
+
+FIELD-RECOVERY NOTE
+On the user's affected v2.13.x install, Settings had already been overwritten by an uninitialized mobile form (mosaic minima, Recu disabled/port 1024, background/model-admin/live bridge disabled, etc.). v2.13.3 recognizes that exact multi-section corruption fingerprint on startup, writes a LOCAL backup named mobile_config.pre_v2_13_3_settings_repair_YYYYMMDD_HHMMSS.json, then restores sane defaults. The backup contains the original local config (including secrets) and should not be shared casually.
+
+EXPECTED AFTER START
+- Recu enabled again at port 9223 and available in Originals + Review.
+- Model admin/live bridge auto-discovery enabled again.
+- EZ Sort imports legacy membership into mobile_model_metadata.json and remains durable thereafter.
+- Whole-library/background mosaic and Non-NSFW background work restored to normal defaults.
+- A model showing N ready mosaics remains N-ready after opening; only the first 3 are synchronously validated by default.

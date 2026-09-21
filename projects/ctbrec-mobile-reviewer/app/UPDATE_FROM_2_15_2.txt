@@ -1,0 +1,14 @@
+Update v2.15.2 -> v2.15.3
+
+1. Stop Mobile Reviewer.
+2. Overlay CTBRec_Mobile_Reviewer_v2_15_3_PATCH.zip onto the existing v2.15.2 installation.
+3. Restart Mobile Reviewer.
+4. Fully close/reopen the iPhone/Home Screen PWA once so shell cache v2153 is active.
+
+What changes:
+- Fixes a pending model-open queue that could remain forever on "Opening this model and locating its first chunk…".
+- Shows live indexing-task progress while a model is being prepared.
+- Automatically repairs a queue orphaned by the narrow shared-task handoff race.
+- Keeps v2.15.2's current + N future mosaic look-ahead behavior unchanged.
+
+The patch does NOT ship or overwrite active runtime state such as mobile_config.json, recording_roots.txt, action queue, READY/catalog/library state, Recu session/profile, model metadata, media, or NudeNet model files.

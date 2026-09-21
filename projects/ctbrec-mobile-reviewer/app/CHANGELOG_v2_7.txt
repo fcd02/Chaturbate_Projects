@@ -1,0 +1,51 @@
+CTBRec Mobile Reviewer 2.7 — RAPID CONTROL + RECOVERY
+======================================================
+
+DELETION RECOVERY
+- Deletion model cards now have two independent actions:
+  * toggle the model for permanent deletion
+  * Inspect / restore to open per-file recovery mosaics
+- Recovery defaults to leaving every file in MARKED_FOR_DELETION.
+- Tap individual numbered recordings to SEND BACK, then Submit.
+- Restore operations are durable PC queue jobs and the phone advances immediately.
+- Exact source paths are recovered from durable move history whenever available.
+- Older deletion files are restored only when one unambiguous same-drive model folder can be inferred; ambiguous restores are blocked rather than guessed.
+- Back/undo can reverse completed deletion-restoration moves through the existing durable undo system.
+
+PC WORK / QUEUE CONTROL
+- New PC Queue screen displays:
+  * live disk-size catalog scan status/progress
+  * whole-library mosaic pass
+  * Non-NSFW detector pass
+  * foreground tasks
+  * durable file-action jobs in actual execution order
+- Waiting durable jobs can move Top / Up / Down.
+- Waiting, blocked, retrying, and running durable jobs can be cancelled.
+- Disk scan, mosaic pass, and Non-NSFW pass have phone cancellation controls.
+- Cancellation is cooperative; an in-progress file or FFmpeg operation may finish first.
+- Stale "catalog is scanning" state is automatically repaired when no actual Scan disks task exists.
+- Non-NSFW/whole-library waiting messages now include the active catalog scan progress instead of a generic wait message.
+- Cancelled background passes do not instantly restart themselves; normal configured rescan timing applies unless Run Now is pressed.
+
+PHONE VIDEO PREVIEW
+- Preview button works in Originals, Review, Non-NSFW cleanup, and deletion recovery.
+- Tap one or multiple mosaic segments and press Preview, or press the per-file ▶ button.
+- MP4/M4V/MOV use byte-range streaming directly from disk when possible.
+- Other containers use a fast fragmented-MP4 FFmpeg remux.
+- Compatibility stream uses ultrafast H.264/AAC transcoding on the PC if the source codec/container is not iPhone-playable.
+- Multiple selected files play as a simple previous/next playlist and auto-advance.
+- If exactly one selected recording has a matched Recu kink, playback starts at the first matched local timestamp.
+- Preview is streaming only; no full-file copy is required before playback.
+
+CUSTOM OFFLINE PACKS
+- Download offline pack now opens a model picker instead of auto-choosing everything.
+- Only models with prepared mosaics are offered.
+- Select All Ready / Clear / individual toggle controls.
+- User-selectable max chunks and max MB for each download.
+- Server accepts selected model names and packs only eligible ready chunks from those models.
+- Existing IndexedDB/Cache Storage outbox, signed work token, stale-source validation, and idempotent sync remain intact.
+
+RAPID CLIENT
+- Deletion recovery preparation runs in the background; tapping a not-yet-ready model does not freeze the phone.
+- PC Queue is accessible from Models, Review, and Settings.
+- Service-worker/static/offline cache versions bumped so iPhone installs receive the new UI.

@@ -1,0 +1,23 @@
+CTBRec MOBILE REVIEWER 2.4 -> 2.5 RAPID UPDATE
+
+1. Stop 2.4.
+2. Extract the COMPLETE 2.5 package into a fresh folder.
+3. Copy your customized recording_roots.txt.
+4. COPY your old mobile_config.json into 2.5.
+   IMPORTANT: this preserves secret_key. Downloaded 2.5 offline work is signed with
+   this key, so do not replace/regenerate it until those offline decisions are synced.
+5. Optional but recommended:
+   - copy mobile_recu_session.json to preserve the Recu verification session;
+   - copy mobile_action_queue.json if 2.4 has pending/blocked actions you need finished.
+6. Do NOT copy mobile_mosaic_layout_cache.json unless troubleshooting pre-2.4 mosaics.
+   Exact v2.4+ maps live beside their JPEGs.
+7. Run install_mobile_reviewer.bat.
+8. Run start_mobile_reviewer.bat.
+9. Open the private HTTPS URL in Safari while connected. If your Home Screen shortcut
+   looks stale, remove it and Add to Home Screen again so the 2.5 offline shell installs.
+10. Enable Whole-library idle generation and let the first pass prepare ready work.
+11. Tap Download offline pack while connected and test one disposable offline decision,
+    then reconnect and Sync queued.
+
+No new Python dependency is required for offline mode. It uses browser service worker,
+Cache Storage, and IndexedDB capabilities.

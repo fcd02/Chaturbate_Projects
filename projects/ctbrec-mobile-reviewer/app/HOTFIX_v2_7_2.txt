@@ -1,0 +1,32 @@
+CTBRec Mobile Reviewer 2.7.2 media hotfix
+=========================================
+
+Fixes two live issues reported from v2.7:
+
+1) Non-NSFW detector crash at 0/N
+   - ctbrec_mobile_server.py now imports Python's tempfile module.
+   - A crashed background pass stays stopped in ERROR until you explicitly press Run again,
+     instead of automatically retrying every maintenance tick.
+
+2) iPhone video preview / seeking
+   - iPhone Safari now automatically uses a native HLS VOD preview path.
+   - The HLS playlist represents the ENTIRE recording duration, so the native video scrubber
+     can jump anywhere in the file.
+   - The PC does not transcode the entire recording first. It creates only the short HLS
+     segment requested by the phone, caches that segment in the Windows temp folder, and
+     reuses it if revisited.
+   - HLS MPEG-TS timestamps are offset to their real position in the source timeline, so a
+     later requested segment remains seekable as part of one continuous recording.
+   - When one selected recording has a matched Recu timestamp, the playlist contains an
+     HLS start hint for that timestamp and the JavaScript also seeks there as a fallback.
+   - Desktop browsers keep the existing direct HTTP Range / fragmented-MP4 compatibility paths.
+   - The service-worker cache version is bumped so iPhone receives the new JavaScript.
+
+Fastest update from 2.7 / 2.7.1:
+- Stop the server.
+- Replace ctbrec_mobile_server.py.
+- Replace static/app.js.
+- Replace static/service-worker.js.
+- Restart start_mobile_reviewer.bat.
+- Fully close and reopen the iPhone Home Screen app/Safari page once.
+- No pip install is required.

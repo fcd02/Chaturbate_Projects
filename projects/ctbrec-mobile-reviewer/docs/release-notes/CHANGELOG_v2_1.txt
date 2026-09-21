@@ -1,0 +1,11 @@
+CTBRec MOBILE REVIEWER 2.1
+==========================
+
+- Replaced file/chunk/mosaic deletion review with a model-level deletion checklist.
+- Delete queue shows each model and its total bytes, sorted largest-first.
+- Tapping a selected model unselects it.
+- Added Select all, Clear, and Delete selected controls.
+- No mosaics, chunk building, or duration probes run in deletion mode.
+- Final confirmation shows selected model count, current file count, and total size.
+- Server expands selected models to exact current files and re-checks every path against configured MARKED_FOR_DELETION roots before unlinking.
+- Existing Originals, Review, Recu, and background mosaic workflows are unchanged.

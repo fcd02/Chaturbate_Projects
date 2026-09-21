@@ -1,0 +1,94 @@
+CTBRec Mobile Reviewer v2.11.3 — Background Mosaic Liveness Test Report
+Date: 2026-08-31
+
+Issue reproduced from v2.11.2
+-----------------------------
+The whole-library mosaic pass could show "Paused for requested model mosaics or queued PC instructions" while the visible PC queue was empty. Inspection found that maintenance called schedule_prefetch() for every queue object retained in memory every 8 seconds. Prefetch futures for old/abandoned sorting queues were counted as interactive phone work, so historical queues could repeatedly starve the whole-library pass after the user had stopped sorting.
+
+A second independent liveness hole existed in both mosaic engines: ffmpeg frame extraction had no hard process timeout. A damaged/stalled source could therefore hold a worker indefinitely.
+
+v2.11.3 changes validated
+-------------------------
+1. Phone sorting lease / active queue
+   - Heartbeat now carries the exact queue_id currently visible on the phone.
+   - Server stores only that queue as active sorting demand.
+   - Sorting lease expires automatically after ~45 seconds without heartbeat.
+   - Old queue objects/futures are ignored once the lease expires.
+   - Automatic prefetch runs only for the currently visible active queue, not every historical queue.
+   - Completed interactive/prefetch futures are pruned.
+
+2. Durable PC queue revalidation
+   - Whole-library pause decisions re-read real queue/future state every time.
+   - A real due queued/running user instruction still preempts whole-library work.
+   - Retrying/failed poison jobs preserve the prior non-freezing behavior.
+   - Pause status now names the real blocker instead of a generic stale message.
+
+3. Bad-model quarantine
+   - Model queue/metadata construction retries up to 3 total attempts by default.
+   - Missing chunk mosaic generation retries up to 3 total attempts by default.
+   - After repeated failure, the current model is recorded as skipped and the persisted resume cursor advances to the next model.
+   - skipped_models, last_skipped_model, and last_skipped_error are exposed in persisted library status.
+
+4. ffmpeg hard timeout
+   - Original mosaic frame extraction: 45-second per-frame timeout by default.
+   - Review mosaic frame extraction: 45-second per-frame timeout by default.
+   - Timeout/failure degrades to the existing placeholder-tile behavior instead of hanging the worker.
+
+5. Whole-library crash recovery
+   - If the library worker crashes outside the per-model guards, state remains resumable.
+   - Maintenance retries the saved cursor after a 5-minute default backoff instead of leaving a permanent error state.
+
+Executed regression tests
+-------------------------
+PASS Python compilation for all top-level .py files in FULL and DROP-IN trees.
+PASS JSON parsing for package JSON files.
+PASS JavaScript syntax checks for app.js, service-worker.js, and rapid.js where present.
+PASS scheduler ghost-blocker reconciliation:
+     * expired sorting lease + unfinished old prefetch => NOT a blocker
+     * active new queue + unfinished old queue prefetch => NOT a blocker
+     * active visible queue prefetch => blocker while phone lease is live
+     * completed visible-queue future => pruned / NOT a blocker
+     * real queued PC instruction => precise PC-queue blocker
+PASS bounded bad-mosaic retry test:
+     * synthetic bad model attempted exactly 3 times
+     * model quarantined/skipped
+     * following good model processed immediately
+     * overall pass reached complete
+PASS bounded metadata-build retry test:
+     * synthetic bad metadata model attempted exactly 3 times
+     * model skipped
+     * following model processed
+PASS Original ffmpeg extraction timeout test:
+     * synthetic forever-running process terminated by timeout path
+PASS Review ffmpeg extraction timeout test:
+     * synthetic TimeoutExpired produces placeholder mosaic and completes
+PASS whole-library crash-backoff test:
+     * 6-minute-old error becomes due for automatic restart
+     * fresh error is held until backoff elapses
+
+Unchanged regression-sensitive files vs v2.11.2
+------------------------------------------------
+SHA-256 comparisons confirmed byte-identical copies of:
+- ctbrec_live_bridge_client.py
+- ctbrec_mobile_model_admin.py
+- static/index.html
+- static/styles.css
+- static/rapid.js
+- ctbrec_nsfw_cleanup.py
+- ctbrec_keep_last.py
+
+Upgrade/state safety
+--------------------
+The HOTFIX and DROP-IN do NOT include mobile_config.json, mobile_action_queue.json, Recu/session state, library state, ready-work indexes, catalog state, or user media. They replace code/template/static files only. Existing active configuration is preserved; new liveness settings are merged from code defaults when absent.
+
+Default new settings
+--------------------
+library_background.mosaic_retry_attempts = 3
+library_background.mosaic_retry_delay_seconds = 2
+library_background.error_retry_minutes = 5
+mosaic_settings.frame_extract_timeout_seconds = 45
+review_settings.frame_extract_timeout_seconds = 45
+
+PWA cache
+---------
+ctbrec-shell-v2113

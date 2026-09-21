@@ -1,0 +1,27 @@
+CTBRec Mobile Reviewer v2.15.0
+
+MODEL-LIST SORTING ONLY RELEASE
+
+Added:
+- Largest total (existing/default ordering).
+- Random model ordering with optional minimum and maximum total model size in GB.
+- Stable random order until the user explicitly taps Reshuffle.
+- Average chunk size descending ordering for models with trustworthy persisted chunk definitions.
+- Average chunk size and chunk count shown on model cards while that mode is active.
+- Sort/range/seed preferences persist locally on the phone.
+
+Safety / non-regression design:
+- No queue behavior changed.
+- No mosaic generation logic changed.
+- No playback/preview logic changed.
+- No background-worker scheduling changed.
+- No READY snapshot mutation was added.
+- Random filtering/sorting is client-side only.
+- Average-chunk metadata is read only from existing READY snapshots in memory and is trusted only when snapshot drive scope and model byte total match the current catalog row.
+- Unknown/unindexed models are never probed just to sort. In average-chunk mode they follow known models, ordered by total size.
+- The catalog's short derived-view cache now also checks the READY-index timestamp because average-chunk metadata comes from that index.
+
+Version:
+- Server: CTBRecMobile/2.15.0
+- PWA cache: ctbrec-shell-v2150
+- Static assets: ?v=2150

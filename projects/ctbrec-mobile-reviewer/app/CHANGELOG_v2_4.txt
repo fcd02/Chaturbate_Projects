@@ -1,0 +1,32 @@
+CTBRec Mobile Reviewer 2.4
+===========================
+
+Mosaic hit-map fix
+------------------
+- Exact per-frame pixel hit rectangles are recorded during mosaic composition.
+- Originals store the hit-map inside the existing .sources.json sidecar.
+- Review stores the hit-map inside its mosaic JSON manifest.
+- The sidecar lives beside the JPEGs, so replacing/updating the mobile package does not lose the mapping.
+- The phone no longer reconstructs a missing hit-map from current mosaic settings.
+- Implausible legacy v2.3 layout caches are rejected rather than displayed.
+- A legacy mosaic without a safe map is regenerated once to migrate it to the v2.4 sidecar format.
+- Valid v2.4 mosaics remain reusable even after layout settings change.
+
+Reuse settings
+--------------
+- Added separate phone checkboxes for Reuse valid existing Originals mosaics and Review mosaics.
+- Redo remains the explicit force-regeneration control.
+
+Back
+----
+- Added Back to the active review screen and Model-complete screen.
+- Skip can be reversed within the current session.
+- A queued previous Submit is cancelled when possible.
+- If files already moved, Back safely restores moved destinations to their exact original paths.
+- Back refuses to overwrite if both the original and destination exist and surfaces the action as blocked.
+- Original-review state markers are removed when an applied Originals job is undone.
+
+Other
+-----
+- Interactive tile state refresh now uses the explicit file_index rather than deriving it again from the displayed number.
+- Server version updated to CTBRecMobile/2.4.

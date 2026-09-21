@@ -1,0 +1,30 @@
+CTBRec Mobile Reviewer v2.14.9 — Validation Report
+
+SOURCE TREE
+- Python compile: PASS
+- app.js syntax: PASS
+- rapid.js syntax: PASS
+- service-worker.js syntax: PASS
+- All 20 validation/validate_*.py suites: PASS
+
+NEW REGRESSION
+- validate_v2_14_9_sidecar_reindex_scope.py: PASS
+- Sidecar recovery requires disk sidecars to exceed already-loaded compatible READY mosaics.
+- False "Existing mosaics were reindexed" status is blocked when zero additions exist.
+- Reuse remains structural/method-compatible rather than release-number gated.
+
+PRESERVED
+- v2.14.8 exact-model pending open / no 12s abort / demand-only generation / queue cancellation / video fallback: PASS
+- v2.14.7 stale READY-index sidecar recovery: PASS
+- v2.14.6 Keep Last semantics and all older regressions: PASS
+
+FIELD NOTE
+A whole-library cursor can span software upgrades. Models behind the cursor are not guaranteed to have been generated under today's validation method; compatible mosaics are still reused, while unsafe legacy mosaics are regenerated only when needed.
+
+FINAL PACKAGING GATE
+- Clean-extracted FULL SOURCE sanitized seed: PASS
+- Clean-extracted FULL SOURCE all 20 regression suites: PASS
+- PATCH protected-runtime inventory: PASS
+- v2.14.8 -> v2.14.9 seeded runtime-state preservation: PASS
+- Overlay v2.14.9 scoped-recovery regression: PASS
+- Overlay v2.14.8 on-demand/video regression: PASS

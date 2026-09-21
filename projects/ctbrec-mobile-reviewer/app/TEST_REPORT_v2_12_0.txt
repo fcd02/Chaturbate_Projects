@@ -1,0 +1,50 @@
+CTBRec Mobile Reviewer v2.12.0 - Precise Review Frame Cuts Test Report
+======================================================================
+Validation time (UTC): 2026-08-31 18:18:07
+
+STATIC / SYNTAX VALIDATION
+--------------------------
+PASS Python compilation: server, Review engine, self-test
+PASS JavaScript syntax: static/app.js
+PASS JSON parse: config/template/manifest
+PASS PWA cache namespace: v2120
+PASS HTTP server version: 2.12.0
+PASS Review engine version: 1.5.0
+
+SYNTHETIC MEDIA / QUEUE REGRESSION
+----------------------------------
+PASS v3 Review sidecar stores exact frame start/end/local timestamps across two source files
+PASS adjacent selected frame intervals merge by destination; unselected intervals create no waste output
+PASS merged interval can cross source boundary: selected Review range is 15.0s-45.0s; source boundary is 40.0s
+PASS idle-only cut does not block background before threshold; becomes blocker/priority above background at threshold
+PASS real ffmpeg H.264/AAC replacement clips verified before both originals move to MARKED_FOR_DELETION
+PASS cross-file splice content: early merged frame is source1/blue; late merged frame is source2/red
+PASS Back/Undo restores originals and removes job-generated replacement clips
+PASS forced ffmpeg failure leaves every original source untouched
+PASS PC activity interrupts running cut, removes temporary output, and returns ActionDeferred (non-retry failure path)
+PASS real media regression complete: Created/verified 3 precise kept clip(s) (0:50 total) and moved 2 original Review recording(s) to MARKED_FOR_DELETION.
+
+SOURCE / UI SAFETY ASSERTIONS
+-----------------------------
+PASS server refuses Frame Cut when exact timestamp map is unavailable
+PASS source size/mtime revalidation exists
+PASS Windows frame-cut ffmpeg runs below-normal OS CPU priority
+PASS frame-cut encoder limited to one ffmpeg thread for control-plane responsiveness
+PASS frame-level Review UI present
+PASS fresh-install config exposes frame-cut idle default
+PASS Mobile Settings exposes frame-cut idle threshold
+
+RESULT: PASS
+All v2.12.0 precise-frame-cut validations passed.
+
+CLEAN-PACKAGE / UPGRADE VALIDATION
+----------------------------------
+PASS clean-extracted HOTFIX Python/JavaScript syntax + v2120 cache + frame-cut feature marker
+PASS clean-extracted DROP-IN Python/JavaScript syntax + v2120 cache + frame-cut feature marker
+PASS clean-extracted FULL Python/JavaScript syntax + v2120 cache + frame-cut feature marker
+PASS FULL bundled NudeNet 640m identity: 103,538,690 bytes; SHA-256 04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb
+PASS HOTFIX and DROP-IN contain no active mobile_config.json, action queue, Recu session, library cursor, or catalog state files
+PASS seeded v2.11.3 -> v2.12.0 DROP-IN overlay preserved active config, durable action queue, Recu session, library mosaic cursor, and catalog byte-for-byte
+
+FINAL RESULT: PASS
+v2.12.0 frame-level Review trimming release is ready for the existing v2.11.3 installation.

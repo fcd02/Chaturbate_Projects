@@ -1,0 +1,28 @@
+CTBRec Mobile Reviewer 2.8.1 — MODEL DOWNLOAD / RESUME HOTFIX
+================================================================
+
+1. NudeNet Accurate 640m download hardening
+- Official GitHub v3.4-weights/640m.onnx remains the first source.
+- Detects and immediately rejects HTML/login responses rather than accepting them as a model download.
+- Validates downloaded size and, when onnxruntime is available, actually opens the model and checks for a 640-resolution input.
+- Adds two pinned Hugging Face fallback sources. Both use the same expected 103,538,690-byte model and SHA-256:
+    04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb
+- Pinned mirror downloads are hash-verified before promotion.
+- Existing models/nudenet_640m.onnx is validated before use. Invalid copies are renamed with .invalid-<timestamp> and replaced.
+- Up to three attempts are used for transient network failures; deterministic HTML/login and hash-mismatch failures move immediately to the next source.
+- Manual fallback remains: place a valid 640m.onnx at models/nudenet_640m.onnx.
+
+2. Whole-library mosaic pass resume
+- Adds a persistent largest-first pass fingerprint plus model/chunk resume cursor.
+- PC activity pause now records exactly which model/chunk should run next.
+- The next idle period resumes there instead of starting at model 1.
+- Cursor also survives a server restart because it lives in mobile_library_mosaic_state.json.
+- Generated/reused/error counters continue across the resumed pass.
+- If the ordered catalog (mode/name/bytes/drives) changes, the fingerprint changes and the worker safely restarts at the largest model.
+- After a fully complete pass, the normal configured rescan interval still applies.
+
+3. Upgrade helper
+- copy_state_from_old_version.bat no longer carries over the transient mobile_non_nsfw_state.json error status.
+- If an older models/nudenet_640m.onnx exists, the helper copies it; v2.8.1 validates it before use.
+
+No Python dependency changes from v2.8.

@@ -1,0 +1,215 @@
+CTBRec Mobile Reviewer 2.9.1 SORT-FIRST — validation
+
+PASS: Python compilation for all bundled .py files.
+PASS: JavaScript syntax validation for app.js, rapid.js and service-worker.js.
+PASS: Partial-ready queue test opened only existing ready chunks and sorted them 500 -> 300 -> 100 source bytes.
+PASS: Background merge test inserted a newly generated 400-byte chunk behind the current 500-byte mosaic, producing 500 -> 400 -> 300 -> 100 without displacing the current view.
+PASS: Durable action queue is no longer considered priority work by the whole-library mosaic generator.
+PASS: Sort-first model preparation task appends a newly generated missing mosaic into an already-open phone queue.
+PASS: Current service-worker cache namespace v291 is present.
+PASS: Next Model controls and sorting heartbeat endpoints are present in the shipped UI/server.
+PASS: Existing v2.8.2 verified NudeNet 640m model remains bundled.
+
+CTBRec Mobile Reviewer 2.8 — Test Report
+========================================
+Test date: 2026-08-14
+
+SCOPE
+-----
+These tests were run against the v2.8 source tree in isolated temporary directories.
+No real C:/E:/F:/G: user recording folders were modified.
+
+1. STATIC / IMPORT VALIDATION
+- Python compile passed for every bundled *.py file.
+- Node syntax validation passed for static/app.js, static/rapid.js and static/service-worker.js.
+- Server identifies as CTBRecMobile/2.8.
+- New ctbrec_keep_last.py imports successfully.
+
+2. PREVIEW SELECTION REGRESSION
+A JavaScript logic harness loaded the exact v2.8 selection/preview functions from app.js.
+Verified:
+- stale historical touched indexes are discarded before Preview;
+- Originals Preview contains only current KEEP indexes;
+- untapping the current KEEP removes it immediately;
+- changing to another chunk with a different file list cannot carry old indexes forward;
+- Review Preview includes only current non-"Leave for review" destinations;
+- returning a Review file to Leave removes it from Preview;
+- Non-NSFW cleanup begins with all files in the default delete set, so none are preview-selected;
+- tapping a cleanup file to KEEP/review adds only that current file to Preview;
+- toggling it back to delete removes it again.
+Result: PREVIEW_CURRENT_SELECTION_ONLY_OK
+
+3. KEEP LAST PLANNING
+Synthetic model:
+- three old timestamped same-size complete recordings;
+- one recent timestamped recording;
+- one timestamp-unparseable recording;
+- rule modelx:10.
+Expected/observed:
+- newest complete recording retained;
+- two older complete recordings selected for deletion;
+- recent recording protected;
+- unparseable recording protected.
+Result: KEEP_LAST_PLAN_OK 1 2 1 1
+
+4. KEEP LAST DURABLE SERVER MOVE
+The server-side Keep Last worker was run against an isolated fake recording root.
+Observed:
+- 1 retained complete file moved to <model>/Review;
+- 2 older complete files moved to sibling drive/root MARKED_FOR_DELETION/modelx;
+- recent and timestamp-unparseable files remained in place;
+- action progress tracked moved_review/moved_delete;
+- catalog refresh was requested afterward.
+Result: KEEP_LAST_SERVER_OK
+
+5. ORIGINALS: EXISTING MOSAICS ARE IMMEDIATELY READY
+Created a real FFmpeg H.264 MP4, built one Originals mosaic/sidecar, then deleted the
+mobile_ready_work_index snapshot to simulate an upgraded install that still has its drive-side mosaics.
+Called quick-load with Recu disabled.
+Observed:
+- source = existing-mosaics;
+- no frame regeneration;
+- no ffprobe readiness pass;
+- queue opened successfully in ~0.0014 sec in this local synthetic test.
+Result: ORIGINAL_EXISTING_MOSAIC_RECOVERY_OK
+
+6. LEGACY v2.7 REVIEW MOSAIC RECOVERY
+Created two Review source files and a synthetic legacy v2.7 Review manifest containing only:
+- chunk signature;
+- output JPEG;
+- v2 mobile hit-map;
+- NO source-file list (matching v2.7 behavior).
+Cleared the ready index, then quick-loaded Review.
+Observed:
+- v2.8 matched the legacy content-derived signature to the exact current contiguous Review-file subset;
+- no ffprobe was required;
+- both source files mapped back into the recovered queue;
+- source = existing-mosaics;
+- recovery completed in ~0.0020 sec in this local synthetic test.
+Result: LEGACY_REVIEW_MOSAIC_RECOVERY_OK
+
+7. FAST REVIEW METADATA PATH
+Created two fake Review recordings with no usable FFmpeg path and called build_chunks with
+probe_actual_durations=False.
+Observed:
+- queue built in ~0.0002 sec;
+- cached/size-estimated durations were used (900s, 450s);
+- estimated values were NOT written into the exact duration cache.
+Exact probing is now deferred until a current Review chunk actually needs a new mosaic.
+Result: REVIEW_FAST_INDEX_OK
+
+8. OFFLINE PACK: UNREADY MODEL CAN BE SELECTED
+Created a real FFmpeg H.264 source model with zero existing mosaics and zero ready snapshot.
+Selected it explicitly for an offline pack.
+Observed:
+- request entered interactive-priority task lane;
+- model metadata was built;
+- missing mosaic was generated;
+- ready snapshot persisted;
+- final offline pack contained the requested model/chunk;
+- resulting JPEG was downloadable/cached by the pack path.
+Result: OFFLINE_UNREADY_PREPARE_OK 1 chunk
+
+9. NON-NSFW CLASSIFICATION SAFETY LOGIC
+Used a deterministic fake detector implementing NudeNet's detect_batch interface.
+Settings: explicit threshold 0.45, borderline floor 0.20.
+Observed:
+- MALE_BREAST_EXPOSED at 0.99 -> safe (shirtlessness not explicit);
+- MALE_GENITALIA_EXPOSED at 0.30 -> uncertain/excluded;
+- MALE_GENITALIA_EXPOSED at 0.70 -> explicit/excluded.
+Result: NSFW_CLASSIFICATION_OK safe uncertain explicit
+
+10. NON-NSFW MOSAIC CHRONOLOGY
+Created two overlapping synthetic recording timelines specifically to expose the old ordering bug.
+The old file-first order could place a later +10min screenshot ahead of a second recording that had
+actually started +5min later.
+v2.8 generated the cleanup hit-map ordered strictly by global screenshot timestamp.
+Observed display-number sequence in the overlap test: [1, 1, 2, 1, 2]
+Observed global timestamps were monotonically sorted.
+Result: NSFW_MOSAIC_CHRONOLOGY_OK
+
+11. NON-NSFW CACHE INVALIDATION / MODE FINGERPRINT
+Verified by code path and schema values:
+- cleanup schema_version is 2;
+- detector fingerprint includes schema, sample interval, main threshold, borderline floor,
+  explicit classes and detector model (320n/640m);
+- therefore a v2.7 cache or a changed detector mode/settings does not silently reuse incompatible results.
+
+12. ACCURATE 640m MODEL INTEGRATION
+Verified against NudeNet 3.4.2's official PyPI documentation:
+- 320n is the package default/included model;
+- 640m is a 640x640 YOLOv8m option;
+- NudeDetector accepts model_path plus inference_resolution=640;
+- the project publishes a 640m ONNX release weight.
+v2.8 implements a one-time download to models/nudenet_640m.onnx and then instantiates
+NudeDetector(model_path=..., inference_resolution=640).
+
+LIMITATION: the actual 640m ONNX inference was not executed in this packaging container because the
+NudeNet runtime/model is not installed/downloaded here. The detector contract and threshold logic were
+exercised with deterministic detect_batch output. On the Windows PC, install_mobile_reviewer.bat verifies
+NudeNet import; the first Accurate pass downloads the model and exercises the real ONNX runtime.
+
+13. PRIORITY / DURABLE-JOB ARCHITECTURE REVIEW
+Verified code paths:
+- model tap sets interactive_demand before ready checking;
+- clicked model preparation uses a dedicated single-worker interactive executor;
+- offline selected-model preparation uses the same interactive executor;
+- Non-NSFW monitor terminates/pauses its child when priority work is waiting;
+- whole-library generator checks priority work between models/chunks;
+- Keep Last and permanent deletion no longer hold heavy_io_lock for the whole job;
+  they release between file operations and wait while phone-priority work is active.
+
+14. WINDOWS STATE-WRITE HARDENING
+Server and Non-NSFW state writers now use uniquely named temp files and retry os.replace after transient
+PermissionError/WinError 5 locks instead of relying on one shared .tmp filename.
+
+15. PACKAGE / CLEAN-EXTRACTION VALIDATION
+- Removed __pycache__ and test/runtime cache/log/state artifacts from the source package.
+- Confirmed the shipped mobile_config.json template has blank access_pin and blank secret_key.
+- Confirmed the shipped durable action queue is empty.
+- Built an archive candidate and extracted it into a clean directory.
+- Recompiled every bundled Python file from the extracted archive.
+- Re-ran Node syntax validation on every bundled static/*.js file from the extracted archive.
+- Started the extracted server on isolated localhost port 18787 with scan_on_start disabled and an empty temporary root.
+- /api/auth returned authenticated=true, local=true.
+- /api/bootstrap returned the scheduler/background/action-queue payload.
+- /api/settings returned v2.8 Keep Last and Non-NSFW settings/status.
+- POST /api/keep-last/run returned the expected controlled "no rules found" error in the isolated package rather than a 404/crash.
+- The final archive is re-extracted and checked again after this report is embedded; its SHA-256 is supplied beside the download.
+Result: CLEAN_ARCHIVE_HTTP_OK
+
+
+16. v2.8.1 ACCURATE-640M DOWNLOAD FAILURE REGRESSION
+- Reproduced the live failure mode with a small HTML/login payload.
+- _validate_640m_model rejected it before model initialization.
+- Verified source failover order: official GitHub -> pinned mirror A -> pinned mirror B.
+- Pinned mirror A/B require the published SHA-256 04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb.
+- Deterministic HTML/login failures skip immediately to the next source rather than retrying the same login page three times.
+- Real 640m inference is still a Windows/runtime test because this packaging container does not have NudeNet/onnxruntime installed.
+
+17. v2.8.1 WHOLE-LIBRARY RESUME CURSOR
+- Model-level harness: paused after model A in A/B/C plan; resumed run visited only B/C.
+- Chunk-level harness: paused after chunk 1 of a 3-chunk model; resumed run generated only chunks 2/3.
+- Cursor persists in the same mobile_library_mosaic_state.json status payload used by the server.
+- Plan fingerprint mismatch intentionally resets the cursor.
+
+
+V2.8.2 LIVE MODEL FILE REGRESSION
+---------------------------------
+- Tested against the exact user-supplied 640m.onnx.
+- Size: 103,538,690 bytes.
+- SHA-256: 04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb.
+- _validate_640m_model accepts it immediately by known SHA-256 even when ONNX Runtime is not installed in the packaging environment.
+- Manual placement test: app-root 640m.onnx was detected, copied to models/nudenet_640m.onnx, and accepted without network access.
+- Download-path regression: a downloaded file with the same known hash is accepted before the old brittle literal-640 shape assertion.
+
+
+v2.9.1 ADDITIONAL TESTS
+PASS: Reconstructed a chunk with the same order-insensitive signature but reversed live file order; v2.9.1 aligned it to the generation-time sidecar order and returned tap indexes 1,2,3 correctly.
+PASS: Created two same-drive configured recording roots containing the same physical model folder; an old deletion file with no move history restored into the canonical first-root Review folder instead of raising the previous ambiguity error.
+PASS: The affected deletion catalog row appeared after a file entered MARKED_FOR_DELETION and disappeared immediately after it was restored, without running a full catalog scan.
+PASS: Priority unit test: a pending durable action pauses whole-library work but does not preempt requested/open-model mosaic preparation; open-model prefetch preempts the durable action.
+PASS: 300 same-drive queued DELETE moves completed with batch_size=64 and only 5 durable queue checkpoints in the test harness, versus one checkpoint per file previously.
+PASS: Python compilation and JavaScript syntax validation passed after the v2.9.1 changes.
+PASS: Final full ZIP was extracted into a clean directory, configured on isolated localhost port 8891 with startup scan disabled, and successfully served /api/auth, /api/bootstrap, and /api/background-status; background status included the new live catalog_status field.
+PASS: Final archive inspection confirmed blank shipped access_pin/secret_key, an empty durable action queue, and service-worker namespace v291.

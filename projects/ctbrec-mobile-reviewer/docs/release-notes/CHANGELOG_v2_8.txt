@@ -1,0 +1,56 @@
+CTBRec Mobile Reviewer 2.8 — RAPID READY / KEEP LAST / ACCURATE CLEANUP
+=====================================================================
+
+1. PREVIEW SELECTION IS NOW CHUNK-LOCAL
+- Preview reads the CURRENT chunk's CURRENT non-default choices at the instant Preview is tapped.
+- No model-history/chunk-history selection cache is consulted.
+- Untapping a selection removes it from Preview immediately.
+- Changing chunks/models reconstructs Preview state only from that chunk's current draft.
+- In Review, tapping the currently selected destination a second time now returns that file to Leave for review.
+
+2. KEEP LAST FROM THE PHONE
+- New Keep Last button + Settings section.
+- Reads the existing keeplasts.txt model:minutes rules.
+- Run Keep Last all is placed into the durable PC action queue and the phone returns immediately.
+- Preserves established behavior: non-segmented runs use a 30-minute gap; segmented recordings group by base timestamp; newest whole complete files totaling at least the target are retained to Review; older complete files move to per-drive MARKED_FOR_DELETION/<model>; recent/unparseable files remain untouched.
+- Large Keep Last jobs release the heavy-I/O lane between files so phone-priority work can jump ahead.
+
+3. NON-NSFW ACCURACY UPGRADE
+- Default detector mode is Accurate 640m (NudeNet YOLOv8m 640x640); the ONNX weight downloads once on first use.
+- Fast 320n remains selectable.
+- Default sampling interval changes from 300s to 180s for legacy-default installs.
+- Main explicit threshold defaults to 0.45 and a separate conservative borderline floor defaults to 0.20.
+- Explicit-class detections between the borderline floor and main threshold are treated as uncertain and EXCLUDED from cleanup rather than assumed safe.
+- MALE_BREAST_EXPOSED remains non-explicit, preserving the requirement that ordinary shirtlessness should not disqualify a file.
+- Detector cache/schema bumped so old v2.7 classifications do not silently survive the accuracy change.
+
+4. NON-NSFW MOSAIC CHRONOLOGY FIX
+- Cleanup tiles are sorted by the actual global screenshot timestamp: recording/segment timeline start + sample offset.
+- Numeric CTBRec segment order is respected.
+- File numbers are assigned after chronological file ordering.
+- Old cleanup manifests are invalidated and rebuilt instead of reusing the bad ordering.
+
+5. "ALREADY MOSAICKED" REALLY MEANS READY
+- Originals with complete valid .sources.json mosaic sidecars reconstruct directly from disk with no ffprobe, no Recu, and no frame generation.
+- v2.8 Review mosaics now persist full source metadata.
+- Legacy v2.7 Review mosaics are also recoverable: their content-derived chunk signature is matched to the exact current Review-file subset without duration probing.
+- A model is only declared ready if EVERY current stable source file in scope is represented, so a newly recorded file cannot be hidden by stale mosaics.
+- Recu is enrichment only. If Recu is disabled, it has zero effect on model readiness.
+
+6. USER INTENT = HIGHEST PRIORITY
+- Tapping a model sets interactive demand immediately.
+- Clicked-model queue preparation and current mosaic work run on a dedicated interactive executor.
+- Non-NSFW and whole-library workers yield to interactive demand at safe interruption points.
+- Large durable Keep Last and permanent-delete jobs release the heavy-I/O lane between file operations and yield to phone-priority work.
+- Review queue metadata uses cached/estimated durations immediately; exact duration probes are delayed until a current Review chunk truly needs a new mosaic.
+
+7. OFFLINE PACKS: ANY MODEL CAN BE SELECTED
+- The custom offline builder now lists all models in the current Originals/Review drive scope, not only models already marked ready.
+- Selecting an unready model promotes its missing mosaic creation above background mosaic/Non-NSFW work.
+- Preparation happens on the PC without blocking the phone; when ready, the selected mosaics download automatically.
+- Ready models are still favored visually, but readiness is no longer an eligibility requirement.
+
+8. STATE/ROBUSTNESS
+- Windows JSON atomic writes use unique temporary names and retries for transient Access Denied locks.
+- Server identifies as CTBRecMobile/2.8.
+- Service-worker shell cache bumped to v280; existing IndexedDB/offline-outbox namespaces are intentionally retained so pending offline work is not abandoned.

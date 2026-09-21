@@ -1,0 +1,67 @@
+CTBRec Mobile Reviewer v2.13.3 — Validation Report
+Date: 2026-09-11
+Status: PRE-PACKAGE AUTOMATED VALIDATION GREEN
+
+FIELD REGRESSIONS ADDRESSED
+1. install_mobile_reviewer.bat false-failed because self-test still expected removed AbortController code.
+2. open-fast warm validation limit incorrectly capped displayed/queued READY chunks.
+3. rebuilding/opening a model could repersist blank mosaic references and turn READY into not-ready.
+4. v2.13.x Settings form could overwrite real config with uninitialized minima/unchecked values.
+5. Recu authoritative config became disabled (port 1024) despite legacy recu_enabled=true; Review queues were not treated as Recu-enabled.
+6. EZ Sort depended too directly on enabled/discovered legacy model-admin paths and could fall to zero.
+7. Original FFmpeg batching path called undefined `normalized`, causing retries/skips.
+
+SOURCE / SYNTAX GATES
+PASS: python -m py_compile *.py validation/*.py
+PASS: node --check static/app.js
+PASS: node --check static/rapid.js
+PASS: node --check static/service-worker.js
+
+VALIDATION SUITES
+PASS validate_v2_13_1_recovery.py
+PASS validate_v2_13_2_catalog_abort.py
+PASS validate_v2_13_3_field_regressions.py
+  - exact corruption fingerprint recognized
+  - near-miss configuration not auto-repaired
+  - missing/stale settings revision rejected before mutation
+  - exact-signature ready paths restored
+  - rebuilt ready snapshot remains READY
+  - Review reaches Recu access path
+  - real synthetic video + complete Original generate_mosaic succeeds
+PASS validate_v2_13_browser_dom.py
+  - bootstrap/catalog transient errors recover without PIN
+  - no AbortController catalog signal
+  - stale slower tab cannot overwrite current tab
+  - 4,100 model logical list with bounded progressive DOM
+PASS validate_v2_13_core.py
+  - EZ Sort import is durable across controller disable/path churn
+  - catalog view cache works/invalidation works
+  - lightweight sort polling avoids layout/JPEG rebuild
+  - 10 durable READY rows -> 10 queued, only 3 warm validations
+PASS validate_v2_13_ffmpeg_batch.py
+  - Original 4 frames -> 1 FFmpeg process
+  - Review 4 frames -> 1 FFmpeg process
+PASS validate_v2_13_http.py
+  - HTTP/1.0/plain JSON conservative transport
+  - paired-device recovery endpoint
+  - streamed app asset
+  - timed catalog + diagnostics endpoint
+PASS validate_v2_13_nsfw_batch.py
+  - detection batching + targeted fallback
+  - cleanup mosaic batching
+
+SELF-TEST NOTE
+The Linux build container lacks the `nudenet` Python package, so the installer self-test cannot be executed end-to-end here. The user's Windows environment already showed NudeNet 3.4.2 installed. The exact stale-tab static feature check that caused the user's installer failure was updated and independently verified true against the v2.13.3 source.
+
+PACKAGE/OVERLAY GATES
+Pending at time this report was first written; final package status will be appended after clean-archive and seeded-overlay verification.
+
+FINAL PACKAGE / OVERLAY GATES
+PASS: full-source ZIP extracted into a clean directory.
+PASS: all Python compilation + JS syntax checks passed against extracted full-source bytes.
+PASS: every validation/*.py suite passed against extracted full-source bytes.
+PASS: patch archive inspected; it excludes active mobile_config.json, recording_roots.txt, action queue, catalog, ready index, model metadata, hidden metadata, library/NSFW runtime state and NudeNet model payload.
+PASS: seeded v2.13.2 -> v2.13.3 overlay preserved all runtime sentinel files byte-for-byte.
+PASS: overlay installed server version CTBRecMobile/2.13.3 and PWA cache ctbrec-shell-v2133.
+
+FINAL STATUS: GREEN FOR AUTOMATED RELEASE GATES. Real iPhone field confirmation remains required for the user's exact Safari/Tailscale/runtime environment.

@@ -1,0 +1,11 @@
+Update CTBRec Mobile Reviewer v2.13.3 -> v2.14.0
+
+1. Stop Mobile Reviewer.
+2. Overlay the v2.14.0 PATCH CTBRec_Mobile_Reviewer folder onto your existing installation.
+3. Do NOT delete mobile_config.json, recording_roots.txt, queues, Recu cache/session/profile, catalog/index state, mosaics, model metadata, or the NudeNet model. The PATCH intentionally omits runtime/private state.
+4. Restart Mobile Reviewer.
+5. Fully kill/reopen the iPhone Home Screen app once. PWA shell cache is v2140.
+
+Recu memory migration is automatic. The first refresh after upgrading may still need to establish/migrate boundaries from the existing cache; subsequent scans should stop at previously-seen sessions instead of walking all historical pages.
+
+For the preferred 12-way Chrome background fetch, keep the dedicated verified Recu Chrome session running. If it is closed, Reviewer retains the captured-cookie HTTP fallback. If Recu invalidates verification/session state, the UI will request re-authentication instead of silently treating the model as empty.

@@ -1,0 +1,35 @@
+CTBRec Mobile Reviewer v2.15.0 — Validation Report
+
+Source-tree validation:
+- Python compilation: PASS
+- static/app.js syntax: PASS
+- static/rapid.js syntax: PASS
+- static/service-worker.js syntax: PASS
+- Every validation/*.py suite: PASS (21/21)
+
+New v2.15.0 regression coverage:
+- Random / Avg chunk model-order controls: PASS
+- Random min/max total-model-size fields: PASS
+- Stable deterministic random ranking + explicit Reshuffle: PASS
+- READY-backed average chunk bytes/count: PASS
+- Stale byte-total snapshot rejected: PASS
+- Wrong drive-scope snapshot rejected: PASS
+- READY timestamp invalidates derived catalog view cache: PASS
+- Average-chunk mode performs no disk scan / mosaic generation: PASS by architecture/static invariant
+
+Historical regression coverage remains green for:
+- iPhone catalog transport / no AbortController
+- 4,100-model progressive rendering
+- READY preservation / fast model open
+- v2.14.8 exact-model on-demand mosaic queueing and cancellation
+- v2.14.9 scoped sidecar recovery / compatible old mosaic reuse
+- video Range/remux/compatibility fallback
+- Original/Review FFmpeg batching
+- Recu incremental/auth/capture paths
+- precise Review frame cuts
+- Keep Last per-session/cross-drive semantics
+- whole-library traversal and mosaic integrity
+
+Final clean FULL SOURCE extraction: PASS (21/21 suites).
+v2.14.9→v2.15.0 PATCH runtime/private-state preservation overlay: PASS.
+PATCH inventory excludes runtime/private state, media, and ONNX model payload: PASS.

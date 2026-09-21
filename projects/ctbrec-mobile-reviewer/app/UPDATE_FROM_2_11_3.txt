@@ -1,0 +1,34 @@
+Updating CTBRec Mobile Reviewer v2.11.3 -> v2.12.0
+=================================================
+
+Recommended existing-install update
+-----------------------------------
+1. Stop Mobile Reviewer.
+2. Extract the v2.12.0 DROP-IN (or FRAME_CUTS_HOTFIX) over the existing
+   CTBRec_Mobile_Reviewer folder and allow the included program files to replace
+   older versions.
+3. Do NOT delete your existing config, queues, Recu/session state, mosaics, or
+   model data.
+4. Restart Mobile Reviewer.
+5. Fully close/reopen the saved iPhone Home Screen app once (shell cache v2120).
+
+Using Frame Cut
+---------------
+1. Open a model in Review mode.
+2. Tap Frame Cut above the mosaic.
+3. Choose Leave for review, Cumshots, or Misc Hot Scenes.
+4. Tap the exact sampled frames whose following time intervals you want to keep.
+   Consecutive selected frames with the same destination become one output clip.
+5. Leave unwanted frames unselected (or use Delete / clear).
+6. Tap Queue precise cuts & next.
+
+The phone advances immediately. The durable PC job waits for idle time, then
+creates and verifies replacement clips. Only after every required replacement
+verifies are the original Review recordings moved to MARKED_FOR_DELETION.
+
+If Frame Cut is disabled for an old Review mosaic, tap Regenerate once. Reviewer
+refuses destructive frame-level cutting when an old mosaic does not provide an
+exact timestamp map.
+
+Mobile Settings -> Background process priority -> Precise Review frame cuts lets
+you change the idle threshold (default 10 minutes).

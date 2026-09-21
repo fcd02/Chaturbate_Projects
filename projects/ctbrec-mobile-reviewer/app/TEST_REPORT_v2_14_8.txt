@@ -1,0 +1,32 @@
+CTBRec Mobile Reviewer v2.14.8 — Validation Report
+===================================================
+
+Release status: FINAL / GREEN for automated packaging gates. Real Windows/iPhone field validation remains required for the reported media sources and device path.
+
+Source-tree validation: PASS
+- Python compile: all top-level Python modules + validation suites PASS.
+- JavaScript syntax: static/app.js, static/rapid.js, static/service-worker.js PASS.
+- 19/19 validation/validate_*.py suites PASS.
+- New v2.14.8 exact-model/on-demand/video-fallback regression PASS.
+- v2.14.7 stale ready-index / sidecar reindex regression PASS.
+- v2.14.6 Keep Last per-session/cross-drive regression PASS.
+- v2.14.4 mosaic integrity/rebuild regression PASS.
+- Recu, direct-disk Range, browser DOM/race, READY preservation, settings guard, and FFmpeg batching regressions PASS.
+
+Clean FULL SOURCE archive gate: PASS
+- Extracted candidate into a clean directory.
+- Confirmed fresh-install mobile_config.json has blank access_pin + secret_key.
+- Confirmed empty action queue and empty shipped mobile_reviewer.log.
+- Python compilation PASS from extracted bytes.
+- app.js / rapid.js / service-worker.js syntax PASS from extracted bytes.
+- 19/19 validation suites PASS from extracted bytes.
+
+PATCH safety / overlay gate: PASS
+- PATCH excludes mobile_config.json, recording_roots.txt, action/catalog/READY/runtime state, local log, Recu session/profile, media/mosaics, and NudeNet binary.
+- Seeded v2.14.7 runtime sentinels were hashed before/after PATCH overlay and remained byte-for-byte identical.
+- Overlayed code compiled.
+- v2.14.7 sidecar recovery regression PASS after overlay.
+- v2.14.8 on-demand queue/video regression PASS after overlay.
+
+Environment/field note
+- Automated validation cannot reproduce every Windows disk/container corruption pattern or iPhone Safari decoder/streaming behavior. v2.14.8 adds staged fallback and bounded stalls, but real-device field confirmation is still required.

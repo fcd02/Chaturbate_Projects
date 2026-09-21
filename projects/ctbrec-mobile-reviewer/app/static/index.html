@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>CTBRec Mobile Reviewer</title>
+  <link rel="manifest" href="/static/manifest.webmanifest">
+  <link rel="stylesheet" href="/static/styles.css?v=21510">
+</head>
+<body>
+  <div id="toast" class="toast hidden"></div>
+
+  <div id="busy" class="busy hidden">
+    <div class="busy-card">
+      <div class="spinner"></div>
+      <h2 id="busy-title">Working…</h2>
+      <p id="busy-text">Please keep this page open.</p>
+      <div class="progress-track"><div id="busy-progress" class="progress-fill"></div></div>
+    </div>
+  </div>
+
+  <div id="delete-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+    <div class="modal-card">
+      <h2 id="delete-modal-title">Confirm permanent deletion</h2>
+      <p id="delete-modal-summary"></p>
+      <p class="danger-copy">These files will be unlinked immediately. They will not move to another recovery folder or the Recycle Bin.</p>
+      <label class="eyebrow" for="delete-phrase">Type DELETE</label>
+      <input id="delete-phrase" autocomplete="off" autocapitalize="characters" placeholder="DELETE">
+      <div class="modal-actions">
+        <button id="delete-cancel" class="secondary">Cancel</button>
+        <button id="delete-confirm" class="danger-button">Permanently delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="preview-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
+    <div class="modal-card preview-card">
+      <div class="modal-title-row">
+        <div><h2 id="preview-modal-title">Video preview</h2><p id="preview-meta" class="muted"></p></div>
+        <button id="preview-close" class="secondary compact">Close</button>
+      </div>
+      <div class="preview-player-shell">
+        <video id="preview-video" controls playsinline preload="metadata"></video>
+        <div id="preview-source-controls" class="preview-source-controls hidden">
+          <button id="preview-source-play" class="preview-source-play" type="button" aria-label="Play or pause">❚❚</button>
+          <input id="preview-source-timeline" type="range" min="0" max="1" step="0.25" value="0" aria-label="Video timeline">
+          <span id="preview-source-time" class="preview-source-time">0:00 / 0:00</span>
+        </div>
+      </div>
+      <p id="preview-note" class="muted small"></p>
+      <div class="preview-controls">
+        <button id="preview-previous" class="secondary compact">← Previous</button>
+        <span id="preview-position" class="muted"></span>
+        <button id="preview-next" class="secondary compact">Next →</button>
+      </div>
+      <div class="inline-actions">
+        <button id="preview-compatibility" class="secondary compact">Force compatibility now</button>
+        <button id="preview-export-diagnostics" class="secondary compact">Export preview diagnostics</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="offline-pack-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="offline-pack-title">
+    <div class="modal-card offline-pack-card">
+      <div class="modal-title-row">
+        <div><h2 id="offline-pack-title">Build offline pack</h2><p class="muted">Choose any models. Existing mosaics download immediately; missing mosaics are promoted to highest PC priority first.</p></div>
+        <button id="offline-pack-close" class="secondary compact">Close</button>
+      </div>
+      <div class="inline-actions">
+        <button id="offline-pack-select-all" class="secondary compact">Select all models</button>
+        <button id="offline-pack-clear" class="secondary compact">Clear</button>
+      </div>
+      <div id="offline-pack-models" class="offline-pack-models"></div>
+      <div class="settings-grid compact-grid">
+        <label><span>Max chunks</span><input id="offline-pack-limit" type="number" min="1"></label>
+        <label><span>Max MB</span><input id="offline-pack-max-mb" type="number" min="50" step="50"></label>
+      </div>
+      <button id="offline-pack-download-confirm" class="primary">Prepare + download selected models</button>
+    </div>
+  </div>
+
+  <main class="app-shell">
+    <section id="login-view" class="panel hidden">
+      <h1>CTBRec Mobile Reviewer</h1>
+      <p class="muted">Enter the fallback PIN printed by the PC server.</p>
+      <form id="login-form" class="stack">
+        <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit PIN">
+        <button class="primary" type="submit">Unlock</button>
+      </form>
+      <p id="login-error" class="error"></p>
+    </section>
+
+    <section id="models-view" class="hidden">
+      <header class="topbar">
+        <div>
+          <h1>CTBRec Mobile Reviewer</h1>
+          <p id="catalog-note" class="muted">Loading disk catalog…</p>
+        </div>
+        <div class="header-actions">
+          <button id="pc-queue-button" class="secondary compact">PC Queue</button>
+          <button id="keep-last-button" class="secondary compact">Keep Last</button>
+          <button id="settings-button" class="secondary compact">Settings</button>
+          <button id="rescan-button" class="secondary compact">Rescan</button>
+        </div>
+      </header>
+
+      <div class="mode-scroll" aria-label="Reviewer modes">
+        <div class="segmented mode-tabs" id="mode-picker">
+          <button data-mode="original" class="active">Originals</button>
+          <button data-mode="review">Review</button>
+          <button data-mode="easy">Easy Sort</button>
+          <button data-mode="hidden">Hidden</button>
+          <button data-mode="cleanup">Non-NSFW cleanup</button>
+          <button data-mode="deletion">Delete queue</button>
+        </div>
+      </div>
+
+      <div id="mode-explanation" class="panel mode-explanation"></div>
+
+      <div class="panel status-panel background-overview">
+        <div>
+          <strong>PC background work</strong>
+          <p id="models-background-status" class="muted">Loading whole-library and decision-queue status…</p>
+        </div>
+        <div class="inline-actions"><button id="models-background-refresh" class="secondary compact">Refresh</button><button id="models-background-queue" class="secondary compact">Manage</button></div>
+      </div>
+
+      <div id="rapid-tools" class="panel rapid-tools">
+        <div>
+          <strong>Rapid / offline sorting</strong>
+          <p id="offline-status" class="muted">Ready mosaics can be downloaded to this iPhone and sorted without a connection.</p>
+        </div>
+        <div class="inline-actions">
+          <button id="download-offline-pack" class="secondary compact">Download offline pack</button>
+          <button id="open-offline-pack" class="secondary compact">Offline pack</button>
+          <button id="sync-offline-button" class="secondary compact">Sync queued</button>
+        </div>
+      </div>
+
+      <div class="panel filter-panel">
+        <label class="eyebrow">Drives</label>
+        <div id="drive-picker" class="chip-row"></div>
+        <label class="eyebrow" for="model-search">Find a model</label>
+        <input id="model-search" type="search" placeholder="Search model names">
+
+        <div id="model-sort-controls" class="model-sort-controls">
+          <label class="eyebrow">Order models</label>
+          <div id="model-sort-picker" class="chip-row sort-chip-row">
+            <button class="chip" data-model-sort="largest">Largest total</button>
+            <button class="chip" data-model-sort="random">Random</button>
+            <button class="chip" data-model-sort="avg_chunk">Avg chunk size ↓</button>
+            <button class="chip" data-model-sort="ts_size">TS-only size ↓</button>
+          </div>
+          <div id="random-sort-controls" class="random-sort-controls hidden">
+            <div class="size-range-grid">
+              <label><span class="eyebrow">Min model GB</span><input id="random-min-size-gb" type="number" min="0" step="0.1" inputmode="decimal" placeholder="No min"></label>
+              <label><span class="eyebrow">Max model GB</span><input id="random-max-size-gb" type="number" min="0" step="0.1" inputmode="decimal" placeholder="No max"></label>
+              <button id="random-reshuffle" class="secondary compact" type="button">Reshuffle</button>
+            </div>
+            <p id="random-sort-note" class="muted small">Random order is stable until you tap Reshuffle.</p>
+          </div>
+          <p id="avg-chunk-sort-note" class="muted small hidden"></p>
+          <p id="ts-sort-note" class="muted small hidden"></p>
+        </div>
+      </div>
+
+      <div id="deletion-model-actions" class="panel deletion-model-actions hidden">
+        <div>
+          <strong id="deletion-selection-summary">0 models selected</strong>
+          <p class="muted">Use the delete checkbox to select whole models. Tap Inspect on any model to review its marked files and restore mistakes.</p>
+        </div>
+        <div class="inline-actions">
+          <button id="select-all-models" class="danger-outline">Select all</button>
+          <button id="clear-model-selection" class="secondary compact">Clear</button>
+          <button id="delete-selected-models" class="danger-button">Delete selected</button>
+        </div>
+      </div>
+      <div class="list-head">
+        <strong id="model-count">0 models</strong>
+        <span id="model-sort-label" class="muted">Largest total ↓</span>
+      </div>
+      <div id="model-list" class="model-list"></div>
+    </section>
+
+    <section id="review-view" class="hidden">
+      <header class="topbar sticky-top review-topbar">
+        <button id="back-button" class="secondary compact">← Models</button>
+        <div class="review-heading">
+          <h1 id="review-model">Model</h1>
+          <p id="review-meta" class="muted"></p>
+        </div>
+        <div class="review-tools">
+          <button id="previous-button" class="secondary compact" disabled>Back</button>
+          <button id="next-model-button" class="secondary compact">Next model</button>
+          <button id="prefetch-button" class="secondary compact">Ahead</button>
+          <button id="regenerate-button" class="secondary compact">Redo mosaic</button>
+          <button id="rebuild-chunk-button" class="secondary compact">Rebuild chunk + mosaic</button>
+        </div>
+      </header>
+
+      <div id="original-instructions" class="panel instruction-panel">
+        <strong>Tap any numbered tile to KEEP that source segment.</strong>
+        <p>Every other segment moves to MARKED_FOR_DELETION when you submit. Multiple sampled frames can intentionally share the same segment number; the black tap badge should always match the white # label embedded in that frame.</p>
+      </div>
+
+      <div id="review-instructions" class="panel instruction-panel hidden">
+        <strong id="review-instruction-title">Choose a destination, then tap numbered tiles.</strong>
+        <div id="review-granularity" class="granularity-row">
+          <button data-granularity="files" class="secondary compact active">Whole segments</button>
+          <button data-granularity="frames" class="secondary compact">Frame Cut</button>
+        </div>
+        <p id="review-frame-cut-help" class="muted small hidden">Frame Cut: every mosaic frame is a time boundary. Tap a frame to keep from that timestamp until the next unselected frame; consecutive selected frames with the same destination are merged. Unselected footage is discarded. The PC performs the cuts only after it becomes idle, verifies every replacement clip, then moves all original Review recordings to MARKED_FOR_DELETION.</p>
+        <p id="review-frame-cut-unavailable" class="warning-text small hidden"></p>
+        <div id="decision-mode" class="decision-row">
+          <button data-decision="Leave for review" class="leave active">Leave for review</button>
+          <button data-decision="DELETE" class="delete">DELETE</button>
+          <button data-decision="Cumshots" class="cumshot">Cumshots</button>
+          <button data-decision="Misc Hot Scenes" class="misc">Misc Hot Scenes</button>
+        </div>
+        <div class="inline-actions">
+          <button id="clear-review-selections" class="secondary compact">Clear segment choices</button>
+        </div>
+      </div>
+
+      <div id="cleanup-instructions" class="panel instruction-panel cleanup-panel hidden">
+        <strong>AI-screened non-explicit recordings — all start selected for the delete queue.</strong>
+        <p>Tap any numbered tile to KEEP that entire recording. If any sampled frame was classified as explicit nudity, that whole recording was excluded from this mode. Ambiguous/error files are also excluded rather than guessed.</p>
+        <div class="inline-actions">
+          <button id="cleanup-select-all-delete" class="danger-outline">Select all for deletion</button>
+          <button id="cleanup-clear-delete" class="secondary compact">Keep all</button>
+        </div>
+      </div>
+
+      <div id="deletion-instructions" class="panel instruction-panel deletion-panel hidden">
+        <strong>Deletion recovery inspection — tap files that were marked incorrectly and should be sent back.</strong>
+        <p>Nothing is permanently deleted here. Unselected files remain in MARKED_FOR_DELETION; selected files are restored to their recorded/inferred original location by the durable PC queue.</p>
+        <div class="inline-actions">
+          <button id="select-all-delete" class="secondary compact">Select all restorable</button>
+          <button id="clear-delete-selection" class="secondary compact">Clear restore selection</button>
+        </div>
+      </div>
+
+      <div id="selection-summary" class="selection-summary"></div>
+      <div id="mosaic-list" class="mosaic-list"></div>
+
+      <div class="review-background-divider" aria-hidden="true"></div>
+      <div class="review-background-label">Background / model tools — never blocks mosaic sorting</div>
+      <div id="recu-panel" class="panel status-panel hidden">
+        <div>
+          <strong id="recu-status-title">Recu kinks</strong>
+          <p id="recu-status-text" class="muted"></p>
+        </div>
+        <button id="recu-refresh-button" class="secondary compact">Refresh</button>
+      </div>
+
+      <div id="prefetch-panel" class="panel status-panel">
+        <div>
+          <strong id="prefetch-title">Automatic Look-ahead</strong>
+          <p id="prefetch-status-text" class="muted">Loading…</p>
+        </div>
+        <button id="prefetch-now-button" class="secondary compact">Generate now</button>
+      </div>
+
+      <div id="action-queue-panel" class="panel status-panel">
+        <div>
+          <strong>Queued sorting instructions</strong>
+          <p id="action-queue-status-text" class="muted">Loading…</p>
+        </div>
+        <div class="inline-actions"><button id="retry-blocked-actions" class="secondary compact hidden">Retry failed/stopped</button><button id="manage-action-queue" class="secondary compact">Manage queue</button></div>
+      </div>
+
+      <div id="model-admin-panel" class="panel model-admin-panel hidden">
+        <div class="list-head">
+          <div><strong>CTBRec model controls</strong><div id="model-admin-live-pill" class="live-bridge-pill">Checking live bridge…</div><p id="model-admin-status" class="muted small">Loading after mosaic…</p></div>
+          <button id="model-admin-refresh" class="secondary compact">Refresh</button>
+        </div>
+        <div id="model-admin-controls" class="hidden">
+          <label class="field-row"><span>Priority / classification</span><select id="model-admin-priority">
+            <option value="favorite">Favorite (1000)</option><option value="likely_favorite">Likely Favorite (800)</option>
+            <option value="continue">Continue (500)</option><option value="test">Test (250)</option>
+            <option value="unsorted">Unsorted (50)</option><option value="low">Low Priority (10)</option>
+          </select></label>
+          <div class="inline-actions model-admin-actions">
+            <button id="model-admin-priority-save" class="secondary compact">Apply priority</button>
+            <button id="model-admin-favorite" class="secondary compact">★ Favorite</button>
+            <button id="model-admin-easy" class="secondary compact">Easy Sort</button>
+            <button id="model-admin-hide" class="secondary compact">Hide</button>
+            <button id="model-admin-pause" class="secondary compact">Pause</button>
+            <button id="model-admin-mark-later" class="secondary compact">Record Later</button>
+            <button id="model-admin-force-priority" class="secondary compact">Force Priority</button>
+          </div>
+          <div class="settings-grid model-admin-grid">
+            <label><span>Keep Last minutes</span><input id="model-admin-keep-last" type="number" min="0" step="0.5" placeholder="0 = off"></label>
+            <div class="field-button-wrap"><span class="muted small">Runs this model immediately via PC queue</span><button id="model-admin-keep-last-save" class="secondary compact">Save + run</button></div>
+          </div>
+          <label class="field-row vertical"><span>Add alias</span><input id="model-admin-alias" placeholder="newname  •  sc othername p  •  cb othername f"></label>
+          <div class="inline-actions">
+            <button id="model-admin-alias-add" class="secondary compact">Add alias</button>
+            <span id="model-admin-search-links" class="inline-links"></span>
+          </div>
+          <div id="model-admin-identities" class="muted small"></div>
+          <div class="danger-zone compact-danger-zone">
+            <button id="model-admin-ignore" class="danger-button">Ignore model + move all recordings to deletion</button>
+            <p class="muted small">The existing live bridge has no native persistent IGNORE command. This safely removes the alias group from the running CTBRec instance now, remembers it as ignored in Mobile Reviewer, and queues matching base/_dup folders into MARKED_FOR_DELETION. It does not rewrite models.json.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="kink-summary" class="kink-summary hidden"></div>
+
+      <div id="ready-hopper" class="panel ready-hopper hidden">
+        <strong>Don’t wait — sort something already prepared</strong>
+        <p class="muted">The PC keeps preparing your requested model in the background. These models already have clickable mosaics ready now.</p>
+        <div id="ready-hopper-list" class="ready-hopper-list"></div>
+      </div>
+
+      <details class="panel file-details">
+        <summary>Segment file list</summary>
+        <div id="file-list"></div>
+      </details>
+
+      <div class="bottom-actions">
+        <button id="skip-button" class="secondary">Skip for now</button>
+        <button id="preview-selected-button" class="secondary">▶ Preview</button>
+        <button id="submit-button" class="primary">Submit & next</button>
+      </div>
+    </section>
+
+    <section id="queue-view" class="hidden">
+      <header class="topbar sticky-top settings-topbar">
+        <button id="queue-back-button" class="secondary compact">← Back</button>
+        <div><h1>PC work queue</h1><p class="muted">Live progress, cancellation, and durable-job order.</p></div>
+        <button id="queue-refresh-button" class="secondary compact">Refresh</button>
+      </header>
+      <div class="settings-stack">
+        <section class="panel settings-card">
+          <h2>Heavy/background work</h2>
+          <div id="heavy-work-list" class="work-list"></div>
+          <p class="muted small">Stopping a running file operation is cooperative: the current file/FFmpeg operation may finish before the worker stops.</p>
+        </section>
+        <section class="panel settings-card">
+          <div class="list-head"><h2>Durable action queue</h2><button id="queue-retry-blocked" class="secondary compact">Retry failed/stopped</button></div>
+          <p class="muted small">Fresh user jobs execute ahead of whole-library passes but never ahead of a mosaic needed by the current phone session. Failed/stopped history does not block background generation. Running work cannot be reordered, but it can be asked to stop after its current file operation.</p>
+          <div id="durable-job-list" class="work-list"></div>
+        </section>
+        <section class="panel settings-card">
+          <h2>Recent foreground tasks</h2>
+          <div id="foreground-task-list" class="work-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="settings-view" class="hidden">
+      <header class="topbar sticky-top settings-topbar">
+        <button id="settings-back-button" class="secondary compact">← Back</button>
+        <div>
+          <h1>Mobile settings</h1>
+          <p class="muted">Saved on the PC.</p>
+        </div>
+        <button id="settings-save-button" class="primary compact">Save</button>
+      </header>
+
+      <div class="settings-stack">
+        <section class="panel settings-card">
+          <h2>Whole-library idle generation</h2>
+          <label class="toggle-row"><input id="library-bg-enabled" type="checkbox"><span>Generate missing mosaics for every model</span></label>
+          <label class="toggle-row"><input id="library-original-enabled" type="checkbox"><span>Include Originals queues</span></label>
+          <label class="toggle-row"><input id="library-review-enabled" type="checkbox"><span>Include Review queues</span></label>
+          <label class="toggle-row"><input id="library-pause-active" type="checkbox"><span>Pause before the next chunk when the PC becomes active</span></label>
+          <label class="field-row"><span>Idle minutes before starting</span><input id="library-idle-minutes" type="number" min="0" step="0.5"></label>
+          <label class="field-row"><span>Repeat full pass every (minutes)</span><input id="library-rescan-minutes" type="number" min="0" step="1"></label>
+          <div id="library-settings-status" class="status-box">Loading status…</div>
+          <div class="inline-actions"><button id="library-run-now-button" class="secondary">Run whole-library pass now</button><button id="library-cancel-button" class="danger-outline">Cancel pass</button><button id="settings-pc-queue" class="secondary">Open PC work queue</button></div>
+          <p class="muted small">Models are processed by total size, largest to smallest. Existing mobile mosaics are reused. Clicked-model mosaic generation takes priority. Queued file moves/deletions are deliberately deferred so they cannot starve sorting.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Background process priority</h2>
+          <label class="field-row"><span>Finish this pass first</span><select id="background-priority"><option value="mosaics_first">Overall mosaic creation</option><option value="cleanup_first">Non-NSFW identifying + cleanup mosaics</option></select></label>
+          <p class="muted small">Only one heavy background worker runs at a time. The prioritized worker completes a full pass through every model before the other background process begins.</p>
+          <hr class="settings-divider">
+          <h3>Precise Review frame cuts</h3>
+          <label class="field-row"><span>PC idle minutes before cutting/splicing</span><input id="frame-cut-idle-minutes" type="number" min="0" step="0.5"></label>
+          <p class="muted small">Frame-cut jobs stay durable in the PC queue while you work. Once the PC reaches this idle threshold they outrank whole-library mosaic generation and Non-NSFW scanning. If you return to the PC or request phone mosaic work, an in-progress cut yields safely and resumes later.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Live CTBRec bridge</h2>
+          <label class="toggle-row"><input id="live-bridge-enabled" type="checkbox"><span>Use the existing running CTBRec Live Control bridge for native model changes</span></label>
+          <label class="toggle-row"><input id="live-bridge-auto-discover" type="checkbox"><span>Auto-discover the existing Live Control controller_config.json</span></label>
+          <label class="field-row vertical"><span>Live Control controller_config.json (recommended if auto-discovery is ambiguous)</span><input id="live-controller-config" type="text" placeholder="C:\path\to\CTBRec_Live_Mobile_Control_v1_0\controller_config.json"></label>
+          <label class="field-row vertical"><span>CTBRec installation directory (optional direct identity target)</span><input id="live-ctbrec-dir" type="text" placeholder="C:\path\to\the exact CTBRec installation"></label>
+          <label class="field-row"><span>Bridge port</span><input id="live-bridge-port" type="number" min="1024" max="65535" step="1" value="8791"></label>
+          <div id="live-bridge-settings-status" class="status-box">Checking identity-verified CTBRec bridge…</div>
+          <p class="muted small">Before every native mutation, Mobile Reviewer PINGs this bridge and verifies the exact CTBRec installation hash. If identity is wrong or the bridge is down, no mutation is sent and sorting remains fully usable.</p>
+          <hr class="settings-divider">
+          <h3>Legacy sorter metadata (read only)</h3>
+          <label class="toggle-row"><input id="model-admin-enabled" type="checkbox"><span>Read old Easy Sort / alias / priority notes from legacy models.json</span></label>
+          <label class="toggle-row"><input id="model-admin-auto-discover" type="checkbox"><span>Auto-discover nearby legacy models.json files</span></label>
+          <label class="field-row vertical"><span>Explicit legacy models.json paths (one per line)</span><textarea id="model-admin-paths" rows="4" placeholder="C:\path\to\ctbrec\config\26.xx.xx\models.json"></textarea></label>
+          <div id="model-admin-settings-status" class="status-box">Loading read-only legacy metadata discovery…</div>
+          <p class="muted small">v2.11 never writes CTBRec-native state to models.json. Easy Sort, Hide, alias grouping, and Reviewer ignore metadata are stored in Mobile Reviewer sidecars.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Keep Last</h2>
+          <p class="muted small">Uses your established <code>keeplasts.txt</code> rules. Recordings for each model are combined across drives, split into sessions when the uncovered gap exceeds the configured threshold, and the configured tail duration is kept independently from every session. Older complete files from each session move to MARKED_FOR_DELETION.</p>
+          <label class="field-row"><span>Keep Last rules file</span><input id="keep-last-file" type="text" placeholder="keeplasts.txt"></label>
+          <div class="settings-grid">
+            <label><span>New-session gap (min)</span><input id="keep-last-gap" type="number" min="1" step="1"></label>
+            <label><span>Protect files modified in last (sec)</span><input id="keep-last-grace" type="number" min="0" step="30"></label>
+          </div>
+          <div id="keep-last-status" class="status-box">Loading Keep Last rules…</div>
+          <div class="inline-actions"><button id="keep-last-run-button" class="secondary">Queue Run Keep Last all</button></div>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Non-NSFW cleanup detector</h2>
+          <label class="toggle-row"><input id="nsfw-enabled" type="checkbox"><span>Scan for non-explicit recordings while the PC is idle</span></label>
+          <label class="toggle-row"><input id="nsfw-pause-active" type="checkbox"><span>Pause before the next recording when the PC becomes active</span></label>
+          <div class="settings-grid">
+            <label><span>Idle minutes</span><input id="nsfw-idle-minutes" type="number" min="0" step="0.5"></label>
+            <label><span>Repeat pass every (min)</span><input id="nsfw-rescan-minutes" type="number" min="0" step="1"></label>
+            <label><span>Detector</span><select id="nsfw-model"><option value="640m">Accurate 640m (recommended)</option><option value="320n">Fast 320n</option></select></label>
+            <label><span>Frame interval (sec)</span><input id="nsfw-spacing" type="number" min="30" step="30"></label>
+            <label><span>Explicit confidence</span><input id="nsfw-threshold" type="number" min="0.10" max="0.95" step="0.05"></label>
+            <label><span>Borderline safety floor</span><input id="nsfw-borderline" type="number" min="0.05" max="0.90" step="0.05"></label>
+            <label><span>Detector batch size</span><input id="nsfw-batch-size" type="number" min="1" step="1"></label>
+            <label><span>Mosaic columns</span><input id="nsfw-columns" type="number" min="1"></label>
+            <label><span>Tile width</span><input id="nsfw-tile-width" type="number" min="160"></label>
+            <label><span>Max tiles/image</span><input id="nsfw-max-tiles" type="number" min="12"></label>
+            <label><span>JPEG quality</span><input id="nsfw-jpeg-quality" type="number" min="60" max="95"></label>
+          </div>
+          <div id="nsfw-settings-status" class="status-box">Loading detector status…</div>
+          <div class="inline-actions"><button id="nsfw-run-now-button" class="secondary">Run Non-NSFW pass now</button><button id="nsfw-cancel-button" class="danger-outline">Cancel current pass</button></div>
+          <p class="muted small">Accurate 640m downloads its model once on first use and is slower but substantially stronger than the bundled Fast 320n detector. A configured explicit class above the main threshold is explicit; a hit between the borderline floor and main threshold is treated as uncertain and excluded from cleanup. Male chest/shirtlessness is intentionally not an explicit class. Sampling interval still matters: shorter intervals inspect more of each recording.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Open-model look-ahead</h2>
+          <h3>Originals</h3>
+          <label class="toggle-row"><input id="original-bg-enabled" type="checkbox"><span>Keep future Originals mosaics ready</span></label>
+          <label class="field-row"><span>Upcoming mosaics</span><input id="original-bg-count" type="number" min="0" step="1"></label>
+          <label class="toggle-row"><input id="original-bg-idle-only" type="checkbox"><span>Generate only while the PC is idle</span></label>
+          <label class="field-row"><span>Idle minutes</span><input id="original-bg-idle-minutes" type="number" min="0" step="0.5"></label>
+          <h3>Review</h3>
+          <label class="toggle-row"><input id="review-bg-enabled" type="checkbox"><span>Keep future Review mosaics ready</span></label>
+          <label class="field-row"><span>Upcoming mosaics</span><input id="review-bg-count" type="number" min="0" step="1"></label>
+          <label class="toggle-row"><input id="review-bg-idle-only" type="checkbox"><span>Generate only while the PC is idle</span></label>
+          <label class="field-row"><span>Idle minutes</span><input id="review-bg-idle-minutes" type="number" min="0" step="0.5"></label>
+          <p class="muted small">This bounded queue follows only the model currently open on the phone. “Upcoming mosaics” counts future mosaics in addition to the one you are viewing. As you sort, the queue automatically refills until that model has no unsorted chunks left. Leaving the model stops its look-ahead work. The whole-library worker remains separate.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Mosaic layout</h2>
+          <h3>Originals</h3>
+          <label class="toggle-row"><input id="original-use-existing" type="checkbox"><span>Reuse valid existing Originals mosaics</span></label>
+          <div class="settings-grid">
+            <label><span>Sample spacing (sec)</span><input id="original-spacing" type="number" min="15"></label>
+            <label><span>Columns</span><input id="original-columns" type="number" min="1"></label>
+            <label><span>Tile width</span><input id="original-tile-width" type="number" min="160"></label>
+            <label><span>Max frames</span><input id="original-max-frames" type="number" min="1"></label>
+          </div>
+          <h3>Review</h3>
+          <label class="toggle-row"><input id="review-use-existing" type="checkbox"><span>Reuse valid existing Review mosaics</span></label>
+          <div class="settings-grid">
+            <label><span>Sample spacing (sec)</span><input id="review-spacing" type="number" min="15"></label>
+            <label><span>Columns</span><input id="review-columns" type="number" min="1"></label>
+            <label><span>Tile width</span><input id="review-tile-width" type="number" min="160"></label>
+            <label><span>Max frames</span><input id="review-max-frames" type="number" min="1"></label>
+          </div>
+          <p class="muted small">Keep reuse enabled to stop unnecessary regeneration. v2.4 stores the exact tap map beside each new mosaic, so changing these settings later does not invalidate an already-generated mosaic. Redo is the only normal way to intentionally rebuild one.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Rapid / offline mode</h2>
+          <label class="field-row"><span>Ready-model suggestions</span><input id="speed-ready-suggestions" type="number" min="1" step="1"></label>
+          <label class="field-row"><span>Chunks per offline pack</span><input id="speed-offline-chunks" type="number" min="1" step="1"></label>
+          <label class="field-row"><span>Maximum offline download (MB)</span><input id="speed-offline-max-mb" type="number" min="50" step="50"></label>
+          <p class="muted small">Offline decisions are stored on the iPhone and sync into the durable PC queue when this app is open again with connectivity.</p>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Recu and Cloudflare verification</h2>
+          <label class="toggle-row"><input id="recu-enabled" type="checkbox"><span>Show Recu kink markers in Originals mode</span></label>
+          <label class="field-row vertical"><span>Chrome path (optional)</span><input id="recu-chrome-path" placeholder="Auto-detect Google Chrome"></label>
+          <label class="field-row vertical"><span>Recu base URL</span><input id="recu-base-url" placeholder="https://recu.me"></label>
+          <label class="field-row"><span>Local debugging port</span><input id="recu-port" type="number" min="1024" max="65535"></label>
+          <div id="recu-settings-status" class="status-box"></div>
+          <ol class="step-list">
+            <li>Tap <strong>Start verification browser</strong>. A dedicated Chrome profile opens on the PC.</li>
+            <li>Open Chrome Remote Desktop below and connect to this PC. Complete any Recu/Cloudflare human check if one is actually shown.</li>
+            <li>When the normal Recu site is visibly usable, return here and tap <strong>Capture current session</strong>. A normal public Recu page can still show <em>Sign In</em>; that does not mean Cloudflare verification failed.</li>
+          </ol>
+          <div class="stack compact-stack">
+            <button id="recu-launch-button" class="secondary">1. Start verification browser</button>
+            <a id="remote-desktop-link" class="button-link secondary" href="https://remotedesktop.google.com/access" target="_blank" rel="noopener">2. Open Chrome Remote Desktop</a>
+            <button id="recu-capture-button" class="primary">3. Capture current session</button>
+          </div>
+          <div class="inline-actions spaced">
+            <button id="recu-test-button" class="secondary compact">Test Recu access</button>
+            <button id="recu-clear-button" class="danger-outline compact">Clear captured session</button>
+          </div>
+          <p class="muted small">The dedicated Chrome profile is separate from your normal Chrome profile. The server prefers that same verified browser for Recu page loads and falls back to its captured cookie and user-agent if Chrome is closed.</p>
+        </section>
+      </div>
+    </section>
+
+    <section id="done-view" class="panel hidden">
+      <h1>Model complete</h1>
+      <p>There are no ready chunks left in this model right now. Missing mosaics may still be generating in the background; use Next model to keep reclaiming space immediately.</p>
+      <div class="inline-actions">
+        <button id="done-back-button" class="secondary">Back to previous chunk</button>
+        <button id="done-next-model-button" class="primary">Next largest ready model</button>
+        <button id="done-models-button" class="secondary">Model list</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js?v=21510"></script>
+  <script src="/static/rapid.js?v=21510"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+CTBRec Mobile Reviewer v2.15.5 — Validation Report
+
+WORKING/CANDIDATE SOURCE
+- Python compilation: PASS
+- static/app.js syntax: PASS
+- static/rapid.js syntax: PASS
+- static/service-worker.js syntax: PASS
+- All 26 validation/*.py suites: PASS
+- New real Chromium Shift-click regression: PASS (click #2, hold Shift, click #5 => inclusive #2-#5 selection)
+- New preview/TS diagnostics regression: PASS
+  * .ts direct MIME fixed to video/mp2t
+  * exact .ts byte subtotal computed in existing catalog walk
+  * old catalog rows marked TS stats unknown rather than false zero
+  * diagnostics ZIP includes metadata/ffprobe/log tail but no media bytes
+  * fallback source-timestamp seek/restart markers present
+
+PATCH SAFETY
+- Protected runtime/private files present in PATCH: NONE
+- v2.15.4 -> v2.15.5 seeded overlay preservation: 13/13 representative runtime/private sentinels byte-identical
+- Overlay syntax gates: PASS
+- Overlay v2.15.2 look-ahead regression: PASS
+- Overlay v2.15.3 pending-open recovery regression: PASS
+- Overlay v2.15.4 active-view lease regression: PASS
+- Overlay v2.15.5 preview/TS/Shift regression: PASS
+
+FULL SOURCE STARTER STATE
+- access_pin blank: PASS
+- secret_key blank: PASS
+- catalog starter state empty: PASS
+- action queue starter state empty: PASS
+- mobile_reviewer.log zero bytes: PASS
+
+FIELD VALIDATION STILL USEFUL
+- Browser/codec support varies by individual recording. v2.15.5 fixes deterministic MIME/watchdog/non-seekable-fallback architecture issues, but a corrupt or unusual-codec source can still require Compatibility. Reproduce such a file and use Export preview diagnostics; the resulting ZIP is specifically designed to identify the remaining per-file cause without uploading media.

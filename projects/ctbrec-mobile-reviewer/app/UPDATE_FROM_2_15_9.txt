@@ -1,0 +1,10 @@
+UPDATE v2.15.9 -> v2.15.10
+
+This is a Git Bridge Windows compatibility hotfix. Reviewer behavior is unchanged.
+
+1. Stop neither Git nor Reviewer manually; overlay CTBRec_Mobile_Reviewer_v2_15_10_PATCH.zip onto the existing v2.15.9 installation.
+2. Restart Reviewer once so runtime/cache identity reports v2.15.10.
+3. Run tools\git_bridge\Setup-Git-Bridge.cmd again. The previous failed setup did not publish anything to GitHub and can be safely retried.
+4. The setup should pass the "Copying public-safe Reviewer source" stage, show the sanitized Git diff, then ask before committing/pushing.
+
+The patch does not overwrite runtime/private state.

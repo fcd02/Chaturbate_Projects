@@ -1,0 +1,21 @@
+Updating CTBRec Mobile Reviewer v2.13.0 -> v2.13.1
+
+This is an emergency safe overlay for the v2.13.0 phone `Failed to fetch` / empty-model-list regression.
+
+1. Stop Mobile Reviewer on the PC.
+2. Extract CTBRec_Mobile_Reviewer_v2_13_1_PATCH.zip.
+3. Copy/overlay its CTBRec_Mobile_Reviewer folder onto the existing installation.
+4. Allow Windows to replace the included code/static/docs files.
+5. DO NOT delete or replace your runtime state. The patch intentionally omits mobile_config.json, recording_roots.txt, mobile_action_queue.json, Recu session/profile, catalog/ready/background caches, generated mosaics, Reviewer sidecars and the NudeNet model.
+6. Restart Mobile Reviewer.
+7. On iPhone, fully terminate the saved Home Screen/PWA app and reopen it once. The shell cache is now ctbrec-shell-v2131.
+
+Expected result:
+- model list should populate even if bootstrap/background-status temporarily fails;
+- transient catalog transport failures retry automatically;
+- same-tab last-good models remain visible during a reconnect;
+- fast tab switching cannot be overwritten by an older request;
+- temporary connectivity trouble does not itself request the PIN;
+- if iOS truly dropped only its auth cookie, the locally retained paired token uses /api/auth/recover once to restore the cookie.
+
+If the model list still does not appear after this patch, preserve the PC console/mobile_reviewer.log and report whether the local PC dashboard at http://127.0.0.1:8787 loads models. That distinction will tell the next agent whether the remaining failure is server/catalog vs Tailscale/PWA transport.

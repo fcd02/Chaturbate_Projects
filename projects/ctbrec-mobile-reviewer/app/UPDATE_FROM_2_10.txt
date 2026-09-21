@@ -1,0 +1,59 @@
+CTBRec Mobile Reviewer — update v2.10 to v2.11
+==============================================
+
+RECOMMENDED: DROP-IN UPDATE
+---------------------------
+1. Run stop_mobile_reviewer.bat in your current CTBRec_Mobile_Reviewer folder.
+2. Extract CTBRec_Mobile_Reviewer_v2_11_LIVE_BRIDGE_DROPIN.zip.
+3. Copy/merge its CTBRec_Mobile_Reviewer folder over your existing one and allow
+   Windows to replace files with the same names.
+4. Do NOT delete or replace your existing mobile_config.json, recording_roots.txt,
+   queue/catalog state, Recu profile/session, mosaics, or NudeNet model. The
+   drop-in does not contain those live files.
+5. Keep using your existing CTBRec Live Mobile Control launch method so the
+   bridge is embedded in the intended running CTBRec instance.
+6. Run start_mobile_reviewer.bat.
+7. Fully close the iPhone Home Screen app/Safari tab once, then reopen it. The
+   PWA shell cache changed to v2110.
+8. Open Mobile Settings. Under Live CTBRec bridge, confirm the status says
+   CTBRec LIVE and points to the intended CTBRec installation.
+
+LIVE CONTROL / PORTS
+--------------------
+- 8791 = the existing loopback bridge inside the selected running CTBRec JVM.
+  v2.11 connects directly to this.
+- 8792 = the separate Live Control web interface. It may remain running, but it
+  is NOT required for Mobile Reviewer to use the 8791 bridge.
+- Mobile Reviewer remains on its own port (normally 8787).
+
+If auto-discovery does not uniquely identify your existing Live Control package,
+paste the full path to that package's controller_config.json into:
+Mobile Settings -> Live CTBRec bridge -> controller_config.json path.
+
+SAFETY / MULTIPLE CTBREC INSTANCES
+----------------------------------
+Before EVERY native mutation, v2.11 sends PING and verifies that the bridge's
+instance hash exactly matches the CTBRec directory selected by the existing Live
+Control configuration and that the recorder is registered. If another CTBRec
+installation owns that port, the mutation is blocked. There is no models.json
+fallback.
+
+MODELS.JSON
+-----------
+v2.11 treats models.json as read-only compatibility metadata. Existing Easy Sort
+and older alias/priority notes can still be recognized, but native live changes
+are sent to the running bridge. Reviewer-only metadata is kept in sidecar files.
+
+IGNORE LIMITATION
+-----------------
+The existing bridge has REMOVE but no native persistent IGNORE command. v2.11
+therefore removes the model live, stores a Reviewer-only ignore, and queues its
+recording folder(s) to MARKED_FOR_DELETION. It does not claim or attempt to edit
+CTBRec's persistent ignoredModels via models.json.
+
+FULL PACKAGE
+------------
+Use the FULL ZIP for a clean install/rebuild. It includes the verified NudeNet
+640m ONNX model. Its shipped mobile_config.json has blank PIN/secret values; the
+Reviewer generates them on first start. For an existing install, the DROP-IN is
+safer because it leaves your live state untouched.

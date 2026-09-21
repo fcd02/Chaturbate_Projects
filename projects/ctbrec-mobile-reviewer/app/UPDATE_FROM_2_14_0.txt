@@ -1,0 +1,28 @@
+Update CTBRec Mobile Reviewer v2.14.0 -> v2.14.1
+
+1. Stop Mobile Reviewer.
+2. Extract CTBRec_Mobile_Reviewer_v2_14_1_PATCH.zip.
+3. Overlay its CTBRec_Mobile_Reviewer folder onto your existing installation and allow replacement.
+4. Restart Mobile Reviewer.
+5. Fully kill/reopen the iPhone Home Screen app once so service-worker cache v2141 is loaded.
+6. In Mobile Settings -> Recu, launch the verification browser, complete verification if needed, then press Capture verified session once.
+
+Expected v2.14.1 behavior after capture:
+- capture message explicitly says the browser session was verified;
+- Settings shows "browser verified" and the active transport;
+- opening a model does NOT ask for verification merely because CDP/captured-cookie background loading is rejected;
+- the program automatically demotes a failed fast transport and uses verified Chrome navigation;
+- only a challenge/login failure in verified navigation itself requests re-authentication.
+
+The patch does not contain or replace active config, roots, queues, Recu cache/session/profile, catalog state, mosaics, or media.
+
+Desktop preview verification:
+- On the recording PC, direct-original playback is attempted from desktop Chrome/Edge even if you opened Reviewer using the PC's Tailscale hostname instead of localhost.
+- MP4/MOV seek/tail Range requests are handled correctly.
+- If the original container/codec is not browser-decodable, Reviewer automatically switches to fast remux; Compatibility transcode remains available.
+
+Recu extra resilience:
+- If the dedicated Chrome window is closed and copied-cookie HTTP is rejected, Reviewer now reopens/attaches the persisted Recu profile and confirms real browser navigation before ever asking you to verify again.
+
+SORTING UX
+- After a submitted/skipped chunk advances, Reviewer now jumps back to the top of the next mosaic automatically. Background metadata/Recu refreshes of the same mosaic do not change scroll position.

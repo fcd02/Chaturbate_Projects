@@ -1,0 +1,37 @@
+CTBRec MOBILE REVIEWER 2.3
+
+WHOLE-LIBRARY IDLE MOSAIC PRODUCER
+- Added a PC-side worker that prepares missing mosaics for every cataloged model.
+- Originals and Review inclusion can be enabled independently.
+- Models are processed by aggregate video bytes, largest to smallest.
+- Chunks retain the included engines' existing largest-first ordering.
+- Signature-valid mosaics and mobile tap-layout metadata are reused.
+- The worker waits for a configurable Windows idle duration.
+- It pauses between chunks if Windows becomes active.
+- Phone mosaic requests and queued sorting actions take priority between chunks.
+- Status persists in mobile_library_mosaic_state.json.
+- A configurable repeat interval picks up new chunks in already cataloged models.
+- Added a manual Run whole-library pass now control.
+
+DURABLE PHONE DECISION QUEUE
+- Originals and Review submissions are saved immediately to mobile_action_queue.json.
+- The phone advances as soon as the durable queue record is written.
+- File moves no longer block the mobile task or next-chunk navigation.
+- A dedicated worker applies actions in order and ahead of background mosaic work.
+- Temporary file locks/errors retry automatically with exponential backoff.
+- Interrupted running jobs return to queued state after a server restart.
+- Repeated permanent failures become visible as blocked jobs rather than pausing all mosaics forever.
+- Actions are idempotent and store exact source/destination paths.
+- Review Leave for review remains a true no-op.
+
+MOBILE UI
+- Added PC background-work status to the model screen.
+- Added queued sorting-instruction status to the review screen.
+- Added a non-blocking mosaic-preparation card while an on-demand mosaic is pending.
+- Added whole-library controls and status to Settings.
+- Renamed the existing bounded queue to Open-model look-ahead.
+
+UNCHANGED
+- Recu verification/cookie capture.
+- Model-level permanent deletion with typed DELETE confirmation.
+- Separate Originals and Review mosaic-layout settings.

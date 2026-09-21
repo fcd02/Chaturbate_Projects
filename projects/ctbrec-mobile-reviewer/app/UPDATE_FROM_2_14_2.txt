@@ -1,0 +1,15 @@
+Update v2.14.2 -> v2.14.3
+
+1. Stop CTBRec Mobile Reviewer.
+2. Overlay the v2.14.3 PATCH onto the existing CTBRec_Mobile_Reviewer folder.
+3. Restart Mobile Reviewer.
+4. Fully close/reopen the iPhone Home Screen app once (PWA cache v2143).
+5. In Mobile Settings -> Recu:
+   - Start the dedicated Recu browser if needed.
+   - If the normal Recu site is visibly usable, you do NOT need to sign into a Recu account just because the public page shows a Sign In button.
+   - Complete a Cloudflare human check only if one is actually shown.
+   - Tap Capture current session.
+6. Expected result: Capture succeeds immediately. It does not navigate/reload the Chrome tab.
+7. Open an Original or Review model and refresh Recu. Cookie HTTP is tried first when available; Chrome navigation is the fallback.
+
+The patch does not contain/replace mobile_config.json, recording_roots.txt, queues, catalog state, Recu cache/session/profile, or media.

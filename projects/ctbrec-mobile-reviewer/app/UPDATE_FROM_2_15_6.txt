@@ -1,0 +1,14 @@
+CTBRec Mobile Reviewer v2.15.6 -> v2.15.7
+
+1. Stop the current Mobile Reviewer server.
+2. Extract CTBRec_Mobile_Reviewer_v2_15_7_PATCH.zip over the existing v2.15.6 application folder.
+3. Keep/retain your existing runtime files (mobile_config.json, recording_roots.txt, READY/catalog/library/action/Recu state, model metadata, etc.). The patch intentionally does not contain those files.
+4. Restart Mobile Reviewer.
+5. Fully close/reopen the desktop/iPhone PWA once so shell v2157 is loaded.
+
+Field checks
+- Review > Frame Cut: make several frame selections, Queue precise cuts & next, and confirm the next mosaic has zero inherited selections while Frame Cut itself remains selected as your granularity preference.
+- Click an item, Shift-click a later item to select the range; click the latest anchor again to turn it off, then Shift-click backward and confirm that whole range clears.
+- Use the new Clear all frame selections / Clear segment choices button.
+- Preview a 15-minute segment whose filename contains a long `_tail_...` value. Confirm the source timeline ends at the actual media duration rather than the tail-tag value.
+- Multi-file preview should still stay on a file until its automatic playback ladder is exhausted or its actual source duration reaches the end.

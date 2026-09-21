@@ -1,0 +1,76 @@
+CTBRec Mobile Reviewer v2.11 — Live CTBRec Bridge Integration
+==============================================================
+Release date: 2026-08-27
+Baseline: verified v2.10 release from the new-chat handoff bundle
+
+WHAT CHANGED
+------------
+1. Native model controls now target the SAME RUNNING CTBRec JVM used by the
+   existing CTBRec Live Mobile Control bridge (normally 127.0.0.1:8791).
+   Mobile Reviewer does not need the separate Live Control web UI on port 8792.
+
+2. Added ctbrec_live_bridge_client.py.
+   - Reads the existing Live Control controller_config.json (auto-discovery or
+     explicit path).
+   - Computes the exact CTBRec installation identity hash used by Live Control.
+   - PINGs and verifies that exact instance immediately before every mutation.
+   - Requires registered=true before a mutation.
+   - Never blindly retries a mutation after an ambiguous/lost response.
+   - Maintains a low-rate live model/status cache so UI reads stay fast.
+   - If more than one Live Control configuration is active, it will only select
+     one automatically when exactly one can be identity-matched; otherwise the
+     user must choose controller_config.json in Mobile Settings.
+
+3. Live CTBRec-native controls now use bridge commands instead of models.json:
+   - Favorite / priority tiers -> PRIORITY
+   - Pause / Resume -> PAUSE / RESUME
+   - Record Later -> MARK_LATER
+   - Force Priority / Normal Priority -> FORCE_PRIORITY / NORMAL_PRIORITY
+   - Add Alias -> ADD_URL, plus requested favorite/pause action when applicable
+   - Ignore -> REMOVE from the running instance (see limitation below)
+
+4. models.json is READ ONLY in v2.11.
+   Existing Easy Sort / alias / old priority notes are still read for backward
+   compatibility, but v2.11 does not write CTBRec-native changes to models.json.
+   Reviewer-only state is stored in mobile_model_metadata.json and
+   mobile_hidden_models.json.
+
+5. Ignore behavior is intentionally truthful and safe.
+   The existing user-provided bridge does not expose a native persistent IGNORE
+   command. Therefore v2.11:
+   - REMOVE(s) the matching identity/identities from the running CTBRec instance;
+   - records them in Reviewer-only ignored metadata;
+   - queues matching recording folders for MARKED_FOR_DELETION.
+   This is NOT represented as a persistent CTBRec ignoredModels mutation and no
+   models.json fallback is performed.
+
+6. Phone UI additions.
+   - CTBRec LIVE status pill.
+   - Pause/Resume.
+   - Record Later / Record Normally.
+   - Force Priority / Normal Priority.
+   - Existing Favorite/priority, alias, Hide, Easy Sort, Keep Last and Ignore
+     controls retained.
+   - Native controls disable cleanly if the live bridge is unavailable or the
+     intended CTBRec identity cannot be proven. Sorting remains available.
+
+7. Settings additions.
+   - Live bridge enabled toggle.
+   - Auto-discover existing Live Control controller_config.json.
+   - Explicit controller_config.json path override.
+   - Optional direct CTBRec directory identity pin.
+   - Bridge port setting (default 8791).
+   - Live health/identity status.
+   - Legacy models.json settings are labeled read-only.
+
+UNCHANGED / PRESERVED FROM VERIFIED v2.10
+-----------------------------------------
+The v2.11 server diff does not change the established rapid-sorting, mosaic,
+preview, durable queue, deletion, Recu, Non-NSFW, or offline-pack worker paths.
+The verified v2.10 rules remain in force: existing mosaics first, largest-first,
+clicked-model work ahead of PC housekeeping, queued filesystem actions ahead of
+whole-library passes, and terminal/stale jobs do not freeze useful background work.
+
+PWA CACHE
+---------
+Service-worker shell cache namespace: ctbrec-shell-v2110

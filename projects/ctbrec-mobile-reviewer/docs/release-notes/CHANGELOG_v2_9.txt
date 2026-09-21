@@ -1,0 +1,16 @@
+CTBRec Mobile Reviewer 2.9 — SORT FIRST
+
+- Changed the phone to partial-ready model opening: valid existing mosaics open immediately even when other chunks are missing.
+- Ready chunks are ordered largest -> smallest by source bytes.
+- Added highest-priority clicked-model mosaic generation; missing chunks append to the currently open queue as they become ready.
+- Newer model clicks preempt older requested-model generation between heavy I/O operations.
+- Removed durable action-queue jobs from mosaic/background priority checks.
+- Normal queued file moves now yield between individual files and are deferred while the phone is actively sorting or mosaic-producing work is active.
+- Added a short phone sorting heartbeat so queued moves do not begin while the user is on the sorting screen; the lease expires automatically if the app disappears.
+- Added Next model / Next largest ready model navigation.
+- If a selected model has no ready mosaics, it is prioritized and the phone automatically opens the next largest sortable model.
+- Returning to Models restores the list around the model that was just being sorted.
+- Ready-model suggestions and offline-pack ordering now prioritize total model bytes, largest first.
+- Whole-library chunk generation explicitly processes largest chunks first.
+- Bumped the PWA shell cache to v290 so iPhone receives the new UI immediately after restart/reopen.
+- Retains all v2.8.2 NudeNet 640m model validation/download fixes and bundled verified 640m model.

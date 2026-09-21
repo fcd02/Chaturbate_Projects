@@ -1,0 +1,29 @@
+CTBRec Mobile Reviewer — Update 2.6 -> 2.7
+===========================================
+
+1. STOP the currently running 2.6 server.
+2. Extract the COMPLETE 2.7 package to a fresh folder.
+3. EASIEST / RECOMMENDED: while the old server is stopped, run copy_state_from_old_version.bat from the NEW 2.7 folder and paste the path to the OLD CTBRec_Mobile_Reviewer folder. It copies configuration/durable state/caches but never copies old code.
+
+   Manual alternative — at minimum copy:
+   - recording_roots.txt (if customized)
+   - mobile_config.json (CRITICAL: preserves secret_key used by existing offline packs)
+   - mobile_recu_session.json and recu_browser_profile\ if you want to retain Recu verification
+   - mobile_action_queue.json if any pending/blocked/running-recovered work matters
+   - mobile_offline_sync_history.json so already-synced offline action IDs remain idempotent
+
+   For the fastest seamless upgrade, also copy mobile_catalog_cache.json, mobile_ready_work_index.json, mobile_library_mosaic_state.json, mobile_non_nsfw_index.json, mobile_non_nsfw_state.json, mobile_mosaic_layout_cache.json, mobile_delete_mosaics\, and the duration/Recu/manifest cache JSON files. The expensive per-recording Non-NSFW scan cache already lives beside each model and is not lost when you replace the program folder.
+
+4. Do NOT copy old Python files or static/ JS/CSS into 2.7. Do NOT copy the old phone service-worker cache; the browser owns it and 2.7 uses new cache names.
+5. Run install_mobile_reviewer.bat. There are no new Python dependencies beyond 2.6, but rerunning verifies NudeNet/Pillow/websocket-client.
+6. Run start_mobile_reviewer.bat.
+7. On the iPhone, fully close/reopen the Home Screen app. If the old interface remains cached, remove the old Home Screen icon, open the Tailscale HTTPS URL in Safari, then Share -> Add to Home Screen again.
+8. Open PC Queue and verify you can see the disk catalog / background workers.
+9. Test video Preview on one non-critical MP4. If the fast stream is not playable because of its codec, tap Compatibility stream.
+10. Test deletion recovery on one file you know the original destination of before relying on inferred restores remotely.
+
+IMPORTANT
+- Preserve mobile_config.json / secret_key until every old offline decision has synced.
+- Permanent deletion remains a typed DELETE confirmation and is queued on the PC.
+- Cancelling a running permanent-delete job may leave it partially completed because already-unlinked files cannot be restored.
+- Queue cancellation is cooperative; a file move or FFmpeg operation already in progress may finish before cancellation takes effect.

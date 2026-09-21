@@ -1,0 +1,22 @@
+CTBRec Mobile Reviewer — update v2.9 / v2.8.2+ to v2.9.1
+
+FASTEST (recommended when your current install is working):
+1. Run stop_mobile_reviewer.bat.
+2. Extract the v2.9.1 DROP-IN ZIP.
+3. Copy its files over the matching files in your existing CTBRec_Mobile_Reviewer folder.
+4. Run start_mobile_reviewer.bat.
+5. Fully close the iPhone Home Screen app/Safari tab and reopen it once. The shell cache changed to v291.
+
+The drop-in does NOT replace:
+- mobile_config.json / secret_key
+- recording_roots.txt
+- Recu profile/session
+- NudeNet 640m model
+- action queue
+- catalogs/caches
+- mosaics
+
+No pip/install step is required.
+
+FULL PACKAGE:
+Use the full ZIP only for a clean install/rebuild. It still contains the verified NudeNet 640m model. Use copy_state_from_old_version.bat if you want to carry state forward.

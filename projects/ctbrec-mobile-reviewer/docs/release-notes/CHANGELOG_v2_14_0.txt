@@ -1,0 +1,36 @@
+CTBRec Mobile Reviewer v2.14.0 - Incremental Recu + Chrome CDP + Desktop Disk Preview
+2026-09-11
+
+RECU / RECURBATE METADATA SCANNING
+- Added durable per-model incremental scan memory to mosaic_lite_recu_cache.json.
+- The cache now stores a model-wide known_sessions map plus per-kink kink_sessions maps.
+- Existing pre-v2.14 Recu caches migrate automatically by deriving session boundaries from cached moments.
+- Kink pages are treated as newest-to-oldest. On each refresh, a kink scan stops as soon as it reaches a video/session ID OR exact session end date already recorded for that kink from a prior scan.
+- Cached historical moments are retained and only newly discovered moments are merged in.
+- Force/Refresh now means "check for new metadata now"; it does not throw away incremental scan memory.
+- Scan diagnostics persist last_scan_at, last_pages_fetched, last_new_sessions, last_stop_boundaries, and concurrency.
+
+FAST VERIFIED-CHROME FETCH PATH
+- Preferred listing retrieval now uses Chrome DevTools Protocol Network.loadNetworkResource with includeCredentials=true through the already-verified dedicated Chrome profile.
+- Up to 12 listing-page requests are issued concurrently by default (configurable 1-24).
+- HTTP 429 responses use bounded exponential/Retry-After backoff. A shared cooldown keeps the concurrent workers from immediately hammering the site again.
+- 401/403, verification/challenge HTML, login redirects/pages, unexpected listing 404s, empty responses, or unexpectedly missing clip listings are treated as re-authentication conditions rather than "zero clips".
+- Re-authentication status propagates to the Review UI as needs_verification and produces a phone toast directing the user to Mobile Settings -> Recu.
+- If Chrome refuses Network.loadNetworkResource, Reviewer automatically falls back to verified Chrome navigation.
+- Navigation fallback blocks image/video/font requests and calls Page.stopLoading as soon as required listing DOM is available.
+- If the dedicated Chrome browser is not running, the established captured-cookie HTTP path remains available rather than forcing a visible browser launch.
+
+DESKTOP VIDEO PREVIEW
+- When the Review UI is opened from a desktop browser on localhost/127.0.0.1, Preview now tries the original recording directly through the server's Range endpoint.
+- This is zero-ffmpeg/zero-transcode and reads directly from the source file on disk.
+- A web page cannot safely launch a file:// URL to arbitrary local media, so loopback HTTP Range is the browser-safe equivalent of "play the actual file from disk".
+- If Chrome cannot decode the original container (for example some TS/MKV variants), the preview falls back once to the existing fast-remux path automatically.
+- iPhone/Tailscale preview behavior is unchanged.
+
+VALIDATION
+- Added validation/validate_v2_14_recu_incremental.py.
+- Regression covers initial scrape -> persisted memory -> second scrape with one new session -> stop at prior boundary without fetching page 2.
+- Confirms 12-way fetch configuration is handed to the batch fetcher.
+- Confirms challenge/login/no-listing HTML requests re-authentication.
+- Confirms CDP includeCredentials, fallback asset blocking/Page.stopLoading, and local disk preview wiring.
+- Existing v2.13 browser/catalog/FFmpeg/NSFW/settings/READY regression suites continue to pass.

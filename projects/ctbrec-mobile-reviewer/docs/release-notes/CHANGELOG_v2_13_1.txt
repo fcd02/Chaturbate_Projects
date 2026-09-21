@@ -1,0 +1,62 @@
+CTBRec Mobile Reviewer v2.13.1 — Emergency iPhone/Tailscale Fetch Recovery
+
+WHY THIS RELEASE EXISTS
+-----------------------
+v2.13.0 introduced a real-phone regression: the iPhone PWA could show
+"PC temporarily unreachable — retrying automatically. Failed to fetch" and
+no models would appear. The v2.13.0 validation had simulated HTTP errors and
+DOM races, but it did not reproduce the exact real iOS + Tailscale Serve
+transport path after simultaneously changing HTTP protocol, compression and
+auth request headers.
+
+ROOT-CAUSE / RISKY CHANGES CORRECTED
+------------------------------------
+The exact single transport mechanism cannot be proven without the user's live
+Tailscale trace, but the regression boundary is narrow and v2.13.1 removes all
+three risky transport changes together:
+1. HTTP/1.1 experiment -> restored HTTP/1.0, the previously verified transport.
+2. Python-layer gzip JSON -> removed; API JSON is plain with Content-Length.
+3. Bearer Authorization on every fetch -> removed.
+
+AUTH RESILIENCE PRESERVED SAFELY
+--------------------------------
+The durable paired-device token remains, but it is no longer attached to every
+request. Startup first checks normal cookie/Tailscale authentication. If iOS
+lost only the HttpOnly cookie while retaining the local paired token, the PWA
+POSTs that token once to /api/auth/recover. The server validates it and reissues
+the HttpOnly cookie. Normal API/image/video traffic then uses the cookie exactly
+as before. Mutating application actions are still never auto-replayed.
+
+MODEL-LIST RECOVERY
+-------------------
+- Bootstrap/status loading and catalog/model-list loading are independent.
+- A failed /api/bootstrap can no longer prevent /api/catalog from running.
+- GET catalog calls retry boundedly on transport failures/timeouts.
+- If the current tab already has a last-good in-memory list, a refresh failure
+  keeps that same-tab list visible while reconnecting.
+- New uncached tabs still clear the prior tab immediately, preventing stale-tab
+  misinformation.
+- A catalog failure schedules foreground automatic retry rather than remaining
+  permanently blank.
+- PIN is shown only for genuine unauthenticated state, not generic fetch failure.
+
+PERFORMANCE WORK RETAINED FROM v2.13.0
+--------------------------------------
+- stale tab request sequencing/abort
+- 120-card progressive rendering for very large catalogs
+- short-lived server/catalog/model-admin caches
+- fast model-open warm window
+- lightweight current-sort polling
+- JPEG/layout validation cache
+- streamed static/mosaic files
+- iOS image surface release/lazy image behavior
+- visibility-aware background polling
+- batched FFmpeg extraction for Original mosaics, Review mosaics, NSFW sampling,
+  and NSFW cleanup mosaics
+- all v2.12 frame-cut, v2.11.3 liveness and live-bridge safety behavior
+
+PWA CACHE
+---------
+Shell cache: ctbrec-shell-v2131
+Asset query version: 2131
+Fully close/reopen the iPhone Home Screen app after installing this patch.

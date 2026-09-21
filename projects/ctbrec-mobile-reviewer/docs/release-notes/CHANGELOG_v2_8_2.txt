@@ -1,0 +1,24 @@
+CTBRec Mobile Reviewer 2.8.2 — 640m MODEL RECOGNITION HOTFIX
+================================================================
+
+1. Fixed false rejection of the correct NudeNet 640m model
+- The published 640m.onnx is 103,538,690 bytes and has SHA-256:
+  04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb
+- v2.8.1 correctly verified that hash, but then performed an overly rigid ONNX input-shape check that could reject the exact known-good model when ONNX Runtime exposed dynamic/non-literal dimensions.
+- v2.8.2 treats the known SHA-256 as authoritative and does not second-guess it with the fragile shape check.
+- Unknown manual ONNX files are still checked for size/HTML and, when ONNX Runtime is available, basic parseability and plausible 4-D image input.
+
+2. Manual model discovery
+- Before any network download, the scanner now checks all of:
+    models\nudenet_640m.onnx
+    models\640m.onnx
+    640m.onnx
+    nudenet_640m.onnx
+  relative to the Mobile Reviewer folder.
+- A valid alternate-name file is automatically copied into the canonical models\nudenet_640m.onnx path.
+
+3. Bundled-model package
+- The FULL_WITH_640M and DROPIN_WITH_640M builds include the exact hash-verified 640m model supplied/tested for this hotfix, eliminating the first-run network download entirely.
+- The state-copy helper preserves the bundled model instead of overwriting it with an older copy.
+
+No Python dependency changes from v2.8.1.

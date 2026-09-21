@@ -1,0 +1,48 @@
+CTBRec Mobile Reviewer — Update v2.7.x / v2.7.3 -> v2.8
+========================================================
+
+RECOMMENDED: install v2.8 into a fresh folder rather than mixing new and old code.
+
+1. On the PC, stop the old Mobile Reviewer with stop_mobile_reviewer.bat.
+2. Extract the COMPLETE v2.8 ZIP to a NEW folder, for example:
+     ...\Mobile Reviewer\v2.8\CTBRec_Mobile_Reviewer\
+3. In the NEW v2.8 folder run:
+     copy_state_from_old_version.bat
+   Paste the full path to your OLD CTBRec_Mobile_Reviewer folder.
+
+   This copies configuration/state/caches but DOES NOT copy old Python/JS/CSS code.
+   It preserves mobile_config.json (including secret_key), recording_roots.txt,
+   Recu session/profile, durable PC queue, ready index, offline-sync history,
+   useful duration/layout caches, and keeplasts.txt when that file lives in the old package.
+
+   If keeplasts.txt lives elsewhere in your CTBRec project, v2.8 also searches a few parent
+   folders automatically when Settings says simply "keeplasts.txt". You can always paste an
+   absolute path in Settings -> Keep Last.
+
+4. Run install_mobile_reviewer.bat.
+   v2.8 still uses NudeNet 3.4.2. The new Accurate 640m ONNX weight is NOT bundled in the ZIP;
+   it downloads automatically the first time Accurate 640m actually runs.
+5. Run start_mobile_reviewer.bat.
+6. On the PC, verify http://127.0.0.1:8787 opens normally.
+7. Fully close the CTBRec Home Screen app/Safari tab on the iPhone and reopen it once.
+   The shell cache is v280, so the new JavaScript should take control automatically.
+
+IMPORTANT NON-NSFW NOTE
+-----------------------
+Old v2.7 detector cache rows/manifests are intentionally not trusted by the new detector schema.
+The first v2.8 cleanup pass therefore re-evaluates files under the new detector fingerprint.
+This is expected and is necessary to avoid inheriting the inaccurate old classifications.
+
+The first Accurate 640m pass may show a one-time model download before inference starts.
+If you prefer the old low-CPU behavior, Settings -> Non-NSFW -> Detector model -> Fast 320n.
+
+IMPORTANT READY/MOSAIC NOTE
+---------------------------
+Do NOT delete your existing recording-drive Mosaic folders just because you upgraded.
+v2.8 is specifically designed to recover complete old Originals and v2.7 Review mosaics
+without recreating them. A model with complete valid mosaics opens immediately on tap; the
+idle whole-library pass also backfills READY status as it encounters already-complete models.
+
+NO PIP REINSTALL STRICTLY REQUIRED IF YOUR v2.7.3 INSTALL IS HEALTHY,
+but running install_mobile_reviewer.bat is recommended because it verifies Pillow,
+websocket-client, NudeNet, FFmpeg discovery, and the bundled engines.

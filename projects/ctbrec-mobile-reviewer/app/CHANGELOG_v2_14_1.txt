@@ -1,0 +1,32 @@
+CTBRec Mobile Reviewer v2.14.1 — Recu Verification/Transport Resilience Hotfix
+
+FIXED
+- Recu could capture cookies successfully, then immediately mark the current model as "Recu verification needed".
+- v2.14.0 treated a RecuReauthRequired raised by the experimental CDP background loader as authoritative and skipped the promised verified-navigation fallback.
+- v2.14.0 treated every listing page with zero matched clip tiles as expired authentication, including legitimate authenticated empty results.
+- Capture reported success after Storage.getCookies without proving that the verified browser could actually load a normal Recu page.
+- If Chrome was later closed, copied-cookie HTTP rejection could still be promoted to a verification prompt without first reopening/confirming the persisted browser profile.
+- Desktop direct-file preview misparsed suffix byte ranges such as bytes=-65536, silently disabled itself when the same PC used a Tailscale hostname, and could retry the same direct MP4 endpoint instead of actually falling back to remux.
+
+CHANGED
+- Recu capture now validates the visible verified Chrome navigation path before persisting a verified session.
+- Authentication health and transport health are tracked separately.
+- Fast transport is adaptive: CDP -> captured-cookie HTTP -> verified navigation.
+- A fast-transport auth-looking failure is never surfaced as re-auth until verified Chrome navigation also fails authentication.
+- Valid signed-in empty listing pages are accepted.
+- Recu Settings status exposes browser-verified state and active transport.
+- Auth-looking copied-cookie rejection with Chrome closed now auto-launches/confirms the exact persisted Recu profile before re-auth is requested.
+- Desktop original-file Range streaming now implements standard/open-ended/suffix ranges and proper 416 responses.
+- Desktop original-file mode is URL-hostname independent; Tailscale-hostname access from the recording PC no longer disables it.
+- Direct playback failure uses an explicit fast-remux fallback URL, with Compatibility transcode still available.
+- Sorting navigation now returns to the top of the review/mosaic view whenever a different chunk loads after Submit/Skip/Back/next-model navigation; same-chunk background refreshes do not move the viewport.
+- PWA cache bumped to v2141.
+
+PRESERVED
+- v2.14 incremental scan memory and stop-at-known-session behavior.
+- Up to 12 concurrent fast listing requests where supported.
+- 429 backoff.
+- verified lightweight navigation fallback with heavy assets blocked.
+- Recu in Originals and Review.
+- desktop localhost direct-disk Range preview.
+- all v2.13.3 READY/EZ Sort/settings safety fixes, FFmpeg batching, frame cuts, liveness and CTBRec bridge behavior.

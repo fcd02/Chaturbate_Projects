@@ -1,0 +1,103 @@
+CTBRec Mobile Reviewer v2.14.1 — Verification/Transport + Direct-Disk Preview Hotfix
+Validation status: FINAL / GREEN for automated regression gates
+Live field confirmation still required for the user's actual Recu/Cloudflare session and desktop media set.
+
+FIELD REGRESSIONS ADDRESSED
+1. Recu browser opened and cookies were captured, but opening a model immediately returned "Recu verification needed".
+2. Desktop "play original file directly from disk" preview did not function reliably.
+3. After sorting/advancing, the next mosaic should return to the top rather than preserving the prior chunk scroll position.
+
+ROOT CAUSE — RECU
+- v2.14.0 added experimental Chrome DevTools Network.loadNetworkResource and 12-way background fetching.
+- RecuReauthRequired raised by that fast transport was re-thrown before the verified-navigation fallback could run.
+- Therefore a transport-specific rejection could incorrectly invalidate an otherwise valid human-verified Chrome session.
+- v2.14.0 also treated every recognized-listing-with-zero-tiles response as expired auth, including valid signed-in empty pages.
+- Cookie capture proved cookie presence but did not prove that the browser could actually load a normal Recu page.
+- If Chrome was later closed, copied-cookie HTTP rejection could still be promoted to re-auth without reopening/confirming the persisted browser profile.
+
+RECU FIXES
+- Capture now verifies actual Chrome navigation before reporting success.
+- Authentication health and transport health are separate.
+- Adaptive transport: CDP background -> captured-cookie HTTP -> verified navigation.
+- Fast-transport auth-looking failure is confirmed through verified navigation before any needs_verification state.
+- Signed-in empty listing pages are accepted using authenticated-shell markers.
+- If copied-cookie HTTP is rejected while Chrome is closed, Reviewer launches/attaches the exact persisted Recu profile and confirms via real navigation before asking for authentication.
+- Settings shows browser-verified timestamp and active transport.
+- Existing v2.14 incremental session memory, stop-at-known-session logic, 12-way fast scanning and rate-limit backoff are preserved.
+
+ROOT CAUSE — DESKTOP ORIGINAL-FILE PREVIEW
+- v2.14.0 enabled desktop original-file playback only when location.hostname was literally localhost/127.0.0.1/::1. Opening Reviewer on the same recording PC through its Tailscale hostname silently disabled direct playback.
+- The HTTP Range parser mishandled suffix requests such as `Range: bytes=-65536` as bytes 0-65536. Browser media engines commonly request the tail of MP4/MOV files to locate metadata.
+- On direct MP4 playback failure, the JavaScript fallback used item.url, which was itself another direct Range URL for MP4/M4V/MOV, so the supposed remux fallback could repeat the same failing path.
+
+DESKTOP PREVIEW FIXES
+- Desktop browsers try the original-file Range endpoint regardless of dashboard hostname. Mobile/iPhone behavior remains separate.
+- Browser-correct standard, open-ended and suffix Range handling.
+- Unsatisfiable ranges return HTTP 416 with `Content-Range: bytes */SIZE`.
+- Preview payload includes explicit `remux_url`.
+- Direct decode failure falls back to fast zero-reencode remux; Compatibility transcode remains available.
+- Original source media remains read-only.
+
+
+MOSAIC ADVANCE UX FIX
+- `loadCurrent()` compares previous/next chunk signatures.
+- A different chunk triggers a post-render scroll reset to the top of the review/mosaic view.
+- Same-chunk background/Recu/status refreshes never reset scroll.
+
+AUTOMATED VALIDATION
+Timestamp UTC: 2026-09-12T01:52:06Z
+
+Syntax:
+PASS Python compile — all top-level and validation Python files
+PASS Node syntax — static/app.js
+PASS Node syntax — static/rapid.js
+
+Regression suites:
+PASS validate_v2_13_1_recovery.py
+PASS validate_v2_13_2_catalog_abort.py
+PASS validate_v2_13_3_field_regressions.py
+PASS validate_v2_13_browser_dom.py
+PASS validate_v2_13_core.py
+PASS validate_v2_13_ffmpeg_batch.py
+PASS validate_v2_13_http.py
+PASS validate_v2_13_nsfw_batch.py
+PASS validate_v2_14_recu_incremental.py
+PASS validate_v2_14_1_recu_auth_resilience.py
+PASS validate_v2_14_1_preview_disk.py
+PASS validate_v2_14_1_scroll_reset.py
+
+New Recu regression coverage explicitly tests:
+- valid authenticated zero-result page does not request re-auth;
+- CDP raises synthetic RecuReauthRequired + raw HTTP fails + verified navigation succeeds => no re-auth, transport demoted;
+- same case for batch fetch;
+- verified navigation itself failing auth => re-auth propagates;
+- Chrome closed + copied-cookie HTTP synthetic 403 => state-level bridge confirms through browser-navigation fallback rather than immediately asking for verification.
+
+New desktop-preview regression coverage explicitly tests:
+- bytes=100-199;
+- bytes=100-;
+- bytes=-128 suffix range;
+- suffix larger than file;
+- invalid/unsatisfiable ranges;
+- desktop direct-original path is not tied to location.hostname;
+- direct playback error falls back to explicit remux_url.
+
+New mosaic-navigation regression coverage explicitly tests:
+- chunk-signature changes trigger the top reset after render;
+- same-chunk background metadata refresh does not trigger the reset.
+
+ENVIRONMENT CAVEAT
+The Linux build container does not have the Windows installation's NudeNet package, so the complete `mobile_self_test.py` cannot pass its external NudeNet dependency gate here. The source-level feature checks and all targeted regression suites above pass. The user's Windows environment previously reported NudeNet 3.4.2 installed.
+
+REQUIRED LIVE FIELD CHECK
+Recu:
+1. Launch dedicated Recu browser.
+2. Complete verification/login if needed.
+3. Capture verified session.
+4. Confirm Settings says browser verified and shows active transport.
+5. Open Original and Review models; they must not immediately return to verification merely because a fast transport is rejected.
+
+Desktop preview:
+1. On the recording PC, open Reviewer through localhost OR that PC's Tailscale hostname.
+2. Preview MP4/MOV and scrub/seek; no ffmpeg should be needed if browser decodes the source.
+3. Preview TS/MKV/unsupported-codec media; it should automatically fall back to fast remux rather than staying blank.

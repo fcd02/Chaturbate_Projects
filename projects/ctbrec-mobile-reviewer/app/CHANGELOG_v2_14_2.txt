@@ -1,0 +1,10 @@
+CTBRec Mobile Reviewer v2.14.2 — Recu Proven-Session Capture/Fetch Hotfix
+
+- Removed forced Chrome navigation from Capture Verified Session.
+- Capture now persists Recu Cookie/User-Agent immediately and treats post-capture HTTP probing as non-fatal.
+- Restored the proven persistent `fetch_recu_html` path as the primary Recu retrieval method.
+- Migrates older v2.14.x session transport preferences back to cookie_http.
+- Keeps Chrome/CDP navigation only as a reliability fallback after persistent-session retrieval fails.
+- Authenticated Recu shell wins over dormant login-form markup, preventing false login detection.
+- Preserves v2.14 incremental scan memory and concurrent scheduling.
+- PWA cache bumped to v2142.

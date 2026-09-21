@@ -1,0 +1,76 @@
+CTBRec Mobile Reviewer v2.13.1 — Validation Report
+Date: 2026-09-10
+
+PURPOSE
+-------
+Emergency regression correction for the v2.13.0 real-phone symptom:
+  PC temporarily unreachable — retrying automatically. Failed to fetch
+followed by an empty model list.
+
+IMPLEMENTED CORRECTIONS
+-----------------------
+- restored known-stable HTTP/1.0 server protocol
+- removed Python-layer gzip from API JSON responses
+- removed global Authorization: Bearer header from normal PWA requests
+- retained paired-device cookie recovery through explicit POST /api/auth/recover
+- decoupled bootstrap/status loading from catalog/model-list loading
+- added bounded GET transport retries and automatic catalog reconnect
+- preserves a same-tab last-good list during refresh failure
+- still clears a genuinely different uncached tab so stale rows are never mislabeled
+- PWA shell bumped to ctbrec-shell-v2131 / assets ?v=2131
+- all v2.13 performance improvements remain
+
+VALIDATION RESULTS
+------------------
+PASS node --check static/app.js
+PASS Python syntax compilation for application + validation files
+PASS v2.13.1 static transport/recovery invariants
+
+Actual Python HTTP server test:
+PASS stable HTTP/1.0 plain-JSON /api/bootstrap, including a client advertising gzip
+PASS explicit paired-device /api/auth/recover returns authenticated cookie
+PASS streamed v2.13.1 app asset has complete Content-Length
+PASS current app asset contains no global Authorization header behavior
+
+Headless phone-sized browser regression:
+PASS repeated bootstrap TypeError("Failed to fetch") does not block/blank model list
+PASS first catalog TypeError("Failed to fetch") recovers via bounded GET retry without PIN
+PASS deliberately slow Review response cannot overwrite subsequently selected EZ Sort
+PASS 4,100-model logical count preserved
+PASS 4,100-model DOM remains progressively bounded
+PASS precise frame selection updates in place without rebuilding mosaic/file DOM
+
+Retained v2.13 optimization regressions:
+PASS paired-device token derivation changes with installation secret
+PASS Easy Sort/Hidden/Ignore cache reuse + invalidation
+PASS server catalog-view cache equivalence + invalidation
+PASS lightweight queue status does not build/read mosaic layout geometry
+PASS open-fast validates only configured 3-mosaic warm window
+PASS Original mosaic 4 requested frames => 1 FFmpeg process
+PASS Review mosaic 4 requested frames => 1 FFmpeg process
+PASS NSFW sampling batch extraction + targeted missing-frame fallback
+PASS NSFW cleanup mosaic 4 tiles => 1 FFmpeg process
+
+Upgrade safety:
+PASS seeded v2.13.0 -> v2.13.1 patch overlay preserved byte-identical sentinel copies of:
+  mobile_config.json
+  recording_roots.txt
+  mobile_action_queue.json
+  mobile_recu_session.json
+  mobile_catalog_cache.json
+  mobile_ready_index.json
+  mobile_library_background.json
+  reviewer_model_metadata.json
+  recu_browser_profile/Default/Cookies
+  models/nudenet_640m.onnx
+PASS patch inventory contains no active runtime/private state or model binary
+PASS candidate FULL_SOURCE extracted into a fresh directory and all current syntax/validation suites passed from that clean extraction
+PASS candidate FULL_SOURCE contained sanitized empty PIN/secret and empty action queue before validation
+
+IMPORTANT LIMITATION
+--------------------
+The exact one of the three v2.13.0 transport changes that triggered the real
+standalone-iOS-PWA/Tailscale failure cannot be proven without the user's live
+network/server trace. v2.13.1 intentionally rolls back the complete risky
+transport bundle while keeping the safe performance work. Real iPhone field
+validation is still required.

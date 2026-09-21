@@ -1,0 +1,44 @@
+CTBRec Mobile Reviewer v2.13.2 — Validation Report
+
+FIELD REGRESSION ADDRESSED
+User reported: "Model list temporarily unavailable: signal is aborted without reason" with no models visible.
+Source comparison showed v2.12 used plain fetch for catalog loading, while v2.13/v2.13.1 added AbortController cancellation and a 30-second catalog timeout. v2.13.2 removes AbortController from the catalog/model-list path entirely and preserves stale-response protection with request sequencing only.
+
+VALIDATION
+PASS node --check static/app.js
+PASS Python compilation for current server/collector/validation files
+PASS static v2.13.2 catalog invariant: no signal passed by loadModels; timeoutMs=0 + noAbort=true
+PASS headless phone-size browser: repeated bootstrap transport failures do not block models
+PASS headless phone-size browser: first catalog network failure self-recovers without PIN
+PASS headless phone-size browser: /api/catalog fetch receives no AbortSignal
+PASS headless phone-size browser: deliberately slow Review result cannot overwrite later EZ Sort
+PASS headless phone-size browser: 4,100 models retained logically with bounded progressive DOM
+PASS precise frame-selection DOM remains in-place
+PASS Python HTTP server: HTTP/1.0/plain JSON preserved
+PASS Python HTTP server: paired-session recovery preserved
+PASS Python HTTP server: versioned asset streams with Content-Length
+PASS Python HTTP server: /api/catalog includes server request_ms
+PASS Python HTTP server: /api/diagnostics/status returns v2.13.2 metrics
+PASS v2.13 core caches/open-fast/lightweight queue status regression suite
+PASS Original mosaic batching: 4 frames -> 1 ffmpeg process
+PASS Review mosaic batching: 4 frames -> 1 ffmpeg process
+PASS NSFW sampling batching + targeted fallback
+PASS NSFW cleanup mosaic batching: 4 tiles -> 1 ffmpeg process
+
+DIAGNOSTIC ADDITIONS
+- Catalog requests >=500 ms are logged to mobile_reviewer.log.
+- Catalog exceptions include elapsed time and traceback in the log.
+- /api/diagnostics/status exposes catalog counts/status, last catalog timing and root availability.
+- collect_mobile_diagnostics.bat/.py builds a support ZIP with redacted config, logs/caches/state, local HTTP probes and Tailscale/Windows status. Recu session/profile data are excluded.
+
+FIELD GATE
+Real iPhone + Tailscale field validation is still required. Do not claim the physical field issue is conclusively resolved until user applies v2.13.2. If it remains, collect_mobile_diagnostics.bat should provide enough evidence to separate server/catalog latency from PWA/Tailscale transport.
+
+RELEASE PACKAGE GATE
+PASS final FULL_SOURCE ZIP extracted to fresh directory
+PASS final FULL_SOURCE mobile_config has blank access_pin/secret_key
+PASS final FULL_SOURCE mobile_action_queue is empty
+PASS final PATCH excludes config, roots, queues, catalog/ready/background state, Recu state/profile, logs, Reviewer sidecars, and NudeNet binary
+PASS Node/Python syntax checks run from clean extracted FULL_SOURCE bytes
+PASS all current validation programs run from clean extracted FULL_SOURCE bytes
+PASS seeded v2.13.1 -> v2.13.2 patch overlay preserved protected runtime state byte-for-byte

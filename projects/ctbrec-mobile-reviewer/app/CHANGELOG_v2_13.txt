@@ -1,0 +1,117 @@
+CTBRec Mobile Reviewer v2.13.0 — Mobile Performance + Reliability
+================================================================
+
+Purpose
+-------
+v2.13.0 is a whole-program latency, memory, authentication-resilience, and
+media-worker efficiency pass. It continues directly from v2.12.0 and preserves
+precise Review frame cuts, v2.11.3 background-liveness protections, v2.11 live
+bridge identity verification, and the existing durable filesystem queue.
+
+Phone/PWA reliability
+---------------------
+- Transient bootstrap/catalog/network failures no longer route an authenticated
+  device to the PIN screen. Only an actual auth rejection requests the PIN.
+- Adds an installation-bound durable paired-device token derived from the
+  existing server secret. The PWA stores it after authentication and sends it as
+  a Bearer token so a lost iOS HttpOnly cookie can be healed automatically.
+- Idempotent GETs use bounded timeout/retry behavior. Mutating POST requests are
+  never automatically replayed.
+- Background polling slows while the PWA is hidden and refreshes immediately on
+  return to the foreground.
+- Old mosaic image src values are explicitly detached when leaving/replacing a
+  chunk, reducing retained decoded-image memory in long iPhone sorting sessions.
+
+Model tabs / catalog
+--------------------
+- Every model-list request has a sequence number and AbortController. A late
+  response from Originals/Review/etc. can no longer overwrite a newer Easy Sort,
+  Hidden, or other tab selection.
+- A tab with no client cache clears the previous tab immediately and displays a
+  loading state instead of leaving stale models onscreen.
+- Short-lived client model catalogs make rapid back-and-forth tab switching
+  memory-speed. Cache size is bounded to eight views to control mobile memory.
+- Model lists are progressively rendered in batches of 120 rather than creating
+  ~4,100+ DOM cards at once. Search still filters the complete fetched catalog.
+- Server catalog views and ready-count hints are cached with source/admin stamps.
+- MobileModelAdmin caches Hidden/Ignore/Easy Sort sets by file stat signature;
+  unchanged models.json/sidecars are not reparsed for every catalog request.
+
+Opening/sorting a model
+-----------------------
+- open-fast validates only a tiny configurable warm set of already-indexed ready
+  chunks (default 3) before returning. It never synchronously crawls the model
+  folder to rebuild a missing ready index on a phone tap.
+- Missing/index-repair work is pushed to the existing highest-priority model
+  preparation lane after the phone has already received an answer.
+- The 2.2-second review-screen refresh path now uses a lightweight queue-status
+  payload and does not read/rebuild mosaic layout geometry every poll.
+- Exact embedded mosaic layouts are cached in memory by file identity/mtime and
+  layout signature so repeated calls do not reopen the same JPEG geometry.
+- Frame-cut tile selection updates only the touched tile/file row/summary instead
+  of rebuilding the whole mosaic DOM.
+- Recu/live controls/background work remain enrichment-only and cannot gate a
+  ready sorting surface.
+
+HTTP/static delivery
+--------------------
+- Server now speaks HTTP/1.1.
+- Large JSON responses are gzip-compressed at low compression level when the
+  client accepts gzip (default threshold 4 KiB).
+- Static/mosaic media files are streamed from disk instead of first allocating a
+  full read_bytes() copy in the Python server.
+- Mosaic parts after the first use lazy image loading/decoding and lower fetch
+  priority.
+
+FFmpeg efficiency
+-----------------
+The old frame generators repeatedly started a new ffmpeg process for each image.
+v2.13.0 introduces bounded exact-timestamp multi-frame extraction:
+- Originals mosaic generation: default 6 frames per ffmpeg process.
+- Review mosaic generation: default 6 frames per ffmpeg process.
+- Non-NSFW detection sample extraction: default 6 frame outputs per ffmpeg
+  process inside each NudeNet inference batch.
+- Non-NSFW cleanup mosaic generation: default 6 frames per ffmpeg process.
+
+Each requested timestamp is still independently seeked, so sampling semantics and
+mosaic tap maps do not become approximate. If a batch fails or omits an output,
+only the missing frame(s) fall back to the prior one-frame extractor. Timeouts
+remain bounded. The default frame-extraction batch size is 6 and is clamped to
+1..12. This reduces process-start overhead without turning the worker into an
+unbounded CPU/disk burst.
+
+Safety / compatibility preserved
+--------------------------------
+- v2.12 precise Review frame-cut outputs are still fully verified before source
+  recordings move to MARKED_FOR_DELETION; Back/Undo behavior is unchanged.
+- v2.11.3 stale phone-prefetch lease cleanup, bounded model retries/skips, and
+  whole-library self-recovery remain intact.
+- v2.11 live CTBRec mutations still require exact running-instance identity
+  verification. models.json is not used as a write fallback.
+- Existing mosaics/sidecars remain reusable; batching changes process topology,
+  not mosaic signatures or decision semantics.
+- The v2.13 patch intentionally excludes mobile_config.json, recording_roots.txt,
+  queues, Recu/browser state, catalogs, logs, and generated mosaics.
+
+PWA cache
+---------
+- Shell cache namespace: ctbrec-shell-v2130.
+- Fully close and reopen the iPhone Home Screen app once after updating.
+
+Validation summary
+------------------
+- Python compilation: pass.
+- JavaScript syntax: pass.
+- Headless DOM/PWA regression simulation: pass for transient bootstrap recovery,
+  stale-response prevention, 4,100-model bounded rendering, paired-token path,
+  and in-place frame selection.
+- HTTP/1.1, gzip JSON, streamed static response: pass.
+- Server catalog/admin cache, lightweight status, bounded open-fast: pass.
+- Original: 4 frames -> 1 ffmpeg process: pass.
+- Review: 4 frames -> 1 ffmpeg process: pass.
+- Non-NSFW detection: batched extraction + targeted missing-frame fallback: pass.
+- Non-NSFW cleanup mosaic: 4 frames -> 1 ffmpeg process: pass.
+- Verified NudeNet 640m model remains 103,538,690 bytes with SHA-256
+  04fe3d77980780c1f8297dc6d7f942fd5b3abe6942a188f742a85241e4f634eb.
+
+See TEST_REPORT_v2_13_0.txt and CTBRec_Mobile_Reviewer_v2_13_0_HANDOFF.md.

@@ -1,0 +1,44 @@
+CTBRec Mobile Reviewer 2.7 -> 2.7.2
+===================================
+
+FASTEST / RECOMMENDED HOTFIX UPDATE
+-----------------------------------
+This preserves every setting, queue, Recu session, catalog, and offline pack state in your
+current v2.7 folder.
+
+1. Stop CTBRec Mobile Reviewer.
+2. From this 2.7.2 package copy these THREE files over the matching files in your current
+   v2.7 CTBRec_Mobile_Reviewer folder:
+
+   ctbrec_mobile_server.py
+   static\app.js
+   static\service-worker.js
+
+3. Start start_mobile_reviewer.bat again.
+4. On iPhone, fully close the Home Screen web app/Safari tab and reopen it once.
+5. In PC Queue / Settings, press Run Non-NSFW pass now once.
+6. Open any reviewable model, select a segment, and tap Preview. On iPhone the player should
+   now use the seekable HLS path automatically; you should be able to drag across the full
+   recording timeline.
+
+No pip install is required for this hotfix.
+
+FULL FRESH-FOLDER UPDATE
+------------------------
+If you prefer to use the whole 2.7.2 package:
+
+1. Stop v2.7.
+2. Extract this package to a new folder.
+3. Run copy_state_from_old_version.bat and point it at your old v2.7 CTBRec_Mobile_Reviewer
+   folder. This preserves mobile_config.json (including secret_key), recording_roots.txt,
+   Recu state, pending durable jobs, catalogs, and other useful durable state without copying
+   old application code.
+4. Run install_mobile_reviewer.bat (optional for this hotfix, but safe).
+5. Run start_mobile_reviewer.bat.
+6. Fully close/reopen the iPhone web app once so service-worker v2.7.2 takes control.
+
+IMPORTANT
+---------
+Do not replace your working mobile_config.json with the blank template if you already have a
+live installation. Keeping your existing secret_key preserves signed offline work that has not
+yet synchronized.

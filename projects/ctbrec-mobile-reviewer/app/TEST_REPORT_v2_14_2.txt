@@ -1,0 +1,58 @@
+CTBRec Mobile Reviewer v2.14.2 — Validation Report
+
+Scope
+-----
+Recu capture/authentication rollback to the proven persistent Cookie/User-Agent retrieval methodology while retaining v2.14 incremental scan memory and v2.14.1 desktop-preview/scroll fixes.
+
+PASS — Python syntax
+- ctbrec_mobile_server.py
+- ctbrec_mosaic_sort_lite.py
+- mobile_self_test.py
+- v2.14.2 validation script
+
+PASS — JavaScript syntax
+- static/app.js
+- static/service-worker.js
+
+PASS — Full validation suite
+- v2.13 mobile recovery/catalog/browser/core/HTTP/FFmpeg/NSFW regressions
+- v2.13.3 READY/settings/EZ Sort field regressions
+- v2.14 incremental Recu memory/concurrency wiring
+- v2.14.1 Recu resilience compatibility suite
+- v2.14.1 direct-disk Range/remux preview suite
+- v2.14.1 next-mosaic scroll-reset suite
+- v2.14.2 proven Recu capture/fetch suite
+
+PASS — v2.14.2 exact capture regression
+- Recu cookies and exact Chrome User-Agent are captured.
+- Capture does not invoke Page.navigate / fetch_html_navigation.
+- Already-authenticated shell wins over dormant password/login markup.
+- Synthetic persistent-HTTP probe failure is non-fatal.
+- Captured session is written/applied before probe.
+- New captures select cookie_http.
+- Old v2.14.1 navigation/CDP preference migrates to cookie_http.
+
+PASS — Proven Recu methodology restored
+- primary fetch path uses the original bundled fetch_recu_html implementation through fetch_html_cookie_http.
+- canonical Recu host handling remains.
+- persistent cookie jar/header profiles remain.
+- nearby profile recovery + remembered working profile + 403 cooldown remain.
+- browser navigation is secondary fallback only.
+
+KNOWN ENVIRONMENT LIMITATION
+- mobile_self_test.py cannot fully pass in this Linux packaging container because NudeNet is not installed here. Dedicated Python/JS/product regression gates pass; the user's Windows Python environment previously had NudeNet installed.
+
+FIELD VALIDATION REQUIRED
+- live Capture Verified Session against the user's real dedicated Chrome profile;
+- live Recu model scan after capture;
+- scan throughput with legacy session locking.
+
+PASS — Final archive checks
+- Final FULL SOURCE archive extracted cleanly.
+- Extracted archive Python files compiled.
+- Extracted archive app.js / rapid.js / service-worker.js passed Node syntax checks.
+- Extracted archive v2.14.2 Recu capture test passed.
+- Extracted archive v2.14 incremental scan test passed.
+- Extracted archive v2.14.1 direct-disk preview test passed.
+- Extracted archive next-mosaic scroll-reset test passed.
+- Actual final PATCH overlaid onto a seeded v2.14.1 full source without changing sentinel mobile_config.json, mobile_action_queue.json, mobile_catalog_cache.json, or recording_roots.txt.

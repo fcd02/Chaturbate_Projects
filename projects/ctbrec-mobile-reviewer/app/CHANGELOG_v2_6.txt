@@ -1,0 +1,40 @@
+CTBRec Mobile Reviewer 2.6 — Non-NSFW Cleanup
+================================================
+
+NEW MODE
+- Added a horizontally scrollable fourth phone mode: Non-NSFW cleanup.
+- Models are ranked by bytes of whole recordings classified as non-explicit candidates, largest first.
+- Each model uses one continuous chronological cleanup mosaic (physically paged into seamless JPEG parts only when needed for iPhone bitmap safety).
+- Every candidate recording defaults selected for the safe MARKED_FOR_DELETION queue.
+- Tapping any tile toggles the entire recording; files are never split.
+- Kept candidates remain in place and are marked reviewed so unchanged files are not repeatedly offered.
+
+DETECTION
+- Added ctbrec_nsfw_cleanup.py using NudeNet 3.4.2 / its default lightweight 320n detector.
+- Default explicit classes: exposed anus, buttocks, female breast, female genitalia, male genitalia.
+- Male chest/shirtlessness and other non-explicit body-part classes do not disqualify a recording.
+- Default sample interval: 300 seconds; configurable.
+- One explicit sampled frame excludes the entire recording from cleanup.
+- Any extraction/probe/inference uncertainty also excludes the entire recording.
+- Per-recording results are fingerprinted by source size/mtime + detector settings and cached beside the model folder.
+
+BACKGROUND PERFORMANCE
+- Detector is optional and runs only while the PC is idle unless manually forced.
+- NudeNet loads once per complete largest-to-smallest pass, not once per model.
+- Child process runs at below-normal Windows priority with BLAS/inference thread caps of 1.
+- Rolling results are persisted after each completed model so prepared cleanup work appears immediately.
+- Phone activity and durable action jobs preempt the detector; completed recording classifications remain cached.
+- NSFW worker and whole-library mosaic generator share one heavy-background lane.
+- New Background process priority setting: Overall mosaics first or Non-NSFW cleanup first.
+- The selected priority completes a full pass before the other due background worker begins.
+
+DURABLE ACTION QUEUE
+- Cleanup submissions are instant phone-side writes to the existing durable PC action queue.
+- Selected candidates later move to MARKED_FOR_DELETION.
+- Unselected candidates are true no-op keeps plus a small reviewed marker.
+- Back can cancel a not-yet-run cleanup job or durably undo completed moves and reviewed markers.
+
+SETTINGS / INSTALL
+- Added a dedicated Non-NSFW cleanup settings card: enable, idle minutes, repeat interval, sample interval, confidence threshold, batch size, columns, tile width, max tiles/image, JPEG quality, status, manual run.
+- Added nudenet==3.4.2 to requirements.txt.
+- Self-test now verifies NudeNet and the new cleanup engine.

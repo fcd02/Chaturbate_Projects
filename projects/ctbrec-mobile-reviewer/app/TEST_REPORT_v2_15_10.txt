@@ -1,0 +1,14 @@
+CTBRec Mobile Reviewer v2.15.10 Test Report
+
+Focus: CTBRec Git Bridge Windows PowerShell compatibility after first real field run.
+
+Dedicated regression validates:
+- no two-character backslash strings are passed to TrimStart/TrimEnd Char overloads;
+- setup/apply use regex-based child-relative path stripping;
+- Python command resolution returns an executable string and is not indexed to one character;
+- runtime/repo equality uses normalized path comparison;
+- missing Git identity is populated locally from gh auth using a GitHub noreply address;
+- .git internals/private bridge config remain excluded;
+- CMD launchers retain process-local ExecutionPolicy Bypass.
+
+Final results: working tree 31/31 PASS; final FULL SOURCE extracted suite 31/31 PASS in two batches; PATCH overlay preserved 15/15 protected sentinels; patch inventory 30 public/source files. See HANDOFF for details.

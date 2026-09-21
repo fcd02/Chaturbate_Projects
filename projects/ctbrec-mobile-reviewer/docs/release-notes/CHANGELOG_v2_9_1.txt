@@ -1,0 +1,30 @@
+CTBRec Mobile Reviewer 2.9.1 — queue/recovery/marking hotfix
+
+1. Fixed deletion-recovery ambiguity
+- Exact durable move history remains authoritative.
+- Older files with no history no longer fail merely because the same physical model folder exists under two configured roots on the same drive.
+- Explicitly rescued ambiguous files are returned to a deterministic canonical same-drive Review folder.
+
+2. Live Delete tab
+- Moving a file into or out of MARKED_FOR_DELETION incrementally refreshes the affected deletion-model catalog row.
+- Permanent deletion and Keep Last do the same.
+- The iPhone Delete tab watches the catalog update timestamp and refreshes automatically while visible.
+- Full disk Rescan is not required for these changes to appear.
+
+3. Priority hierarchy
+- Highest heavy-work priority: model/offline mosaics specifically requested by the phone.
+- Next: durable user filesystem jobs (sorting moves, deletion restores, permanent deletion, Keep Last).
+- Lowest: whole-library mosaic and Non-NSFW passes; their mutual order still follows the background-priority setting.
+- Having a ready mosaic open does not by itself park durable file moves.
+
+4. Faster durable queue
+- Generic move jobs, Keep Last, and permanent deletion process bursts up to 64 file operations per durable queue checkpoint.
+- The worker checks for requested mosaic work after every individual operation, so a batch yields after the current file when necessary.
+- Avoids rewriting the full action-queue JSON after every single same-drive metadata move.
+
+5. Mosaic marking correctness
+- Mosaic source manifests are now used to restore the exact generation-time file order before exposing tap overlays, file numbers, preview indices, or decisions.
+- Fixes the occasional case where the JPEG's baked #12 could receive a black #11 overlay after a later order-insensitive queue reconstruction.
+
+6. PWA cache
+- Shell cache bumped to v291 so the live Delete-tab refresh/UI priority text reaches iPhone after restart/reopen.

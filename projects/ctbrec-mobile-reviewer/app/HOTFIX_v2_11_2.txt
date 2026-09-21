@@ -1,0 +1,53 @@
+CTBRec Mobile Reviewer v2.11.2 — Sorting-Lane UX Hotfix
+========================================================
+
+Problem fixed
+-------------
+While the user was actively sorting mosaics, asynchronous CTBRec model-control
+and Recu status refreshes could alter the height of panels placed above the
+mosaic. The model-control loader also hid its controls on every refresh and
+revealed them again when the request completed. During Recu task polling, the
+shared full-screen busy overlay could also cover the sorting UI.
+
+That violates the core UX rule: background work must never interrupt sorting.
+
+Changes
+-------
+1. Mosaic-first layout
+   - Selection summary + mosaics now render before Recu, prefetch, durable queue,
+     CTBRec model controls, kink summary, ready hopper, and file details.
+   - Background panel height changes therefore occur BELOW the interactive
+     mosaics and cannot move a tile under the user's finger.
+
+2. No repeated model-control collapse/expand
+   - Model controls are loaded once per model unless the user explicitly taps
+     Refresh or an operation requires a forced refresh.
+   - The control body remains present and disabled while loading instead of
+     being hidden and reinserted.
+   - Same-chunk background polls no longer re-trigger model-control discovery.
+
+3. Recu is non-blocking
+   - Recu Refresh polls its task without the full-screen busy overlay.
+   - Recu session capture can trigger background kink loading without the
+     full-screen busy overlay.
+   - The user gets a short toast and can continue tapping mosaics immediately.
+
+4. Same-chunk status polling no longer rebuilds the mosaic DOM
+   - Recu/prefetch/action-queue/background status refreshes update only their
+     own UI plus Recu kink badges/metadata in place.
+   - Existing tile buttons/images are preserved while the user is sorting.
+   - A full render still occurs when a previously-missing mosaic becomes ready,
+     because the actual sorting content has then changed.
+
+5. PWA cache bumped to ctbrec-shell-v2112 so the iPhone receives the patched
+   JavaScript/HTML/CSS/service worker instead of continuing to run v2.11.x shell
+   assets from cache.
+
+Install
+-------
+Stop Mobile Reviewer, overlay the v2.11.2 hotfix/drop-in onto the existing
+CTBRec_Mobile_Reviewer folder, then restart Mobile Reviewer. Fully close and
+reopen the iPhone home-screen/PWA instance once so the new shell cache activates.
+
+No config, queue, Recu session, model, catalog, or user-state files are included
+in the hotfix and none should be deleted.

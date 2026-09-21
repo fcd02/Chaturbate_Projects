@@ -1,0 +1,77 @@
+CTBRec Mobile Reviewer v2.14.0 Validation Report
+Date: 2026-09-11
+Status: FINAL / GREEN FOR AUTOMATED RELEASE GATES; LIVE RECU/CDP FIELD CONFIRMATION REQUIRED
+
+IMPLEMENTED SCOPE
+- Durable incremental Recu scan memory per model and per kink slug.
+- Newest-to-oldest early-stop when a prior session ID/date is reached.
+- Existing cached moments are preserved; only newly discovered moments are merged.
+- Preferred verified-Chrome CDP Network.loadNetworkResource retrieval with includeCredentials=true.
+- Default 12 concurrent listing-page requests.
+- HTTP 429 bounded backoff plus shared rate-limit cooldown.
+- Explicit re-authentication state for 401/403, unexpected 404, challenge/verification, login, empty response, and unexpectedly empty listing.
+- Automatic lightweight verified-Chrome navigation fallback with image/video/font blocking and Page.stopLoading once needed DOM exists.
+- Recu timing-resolution pages use the same preferred browser-backed path.
+- Local desktop localhost preview reads original files through HTTP Range with no ffmpeg; unsupported containers fall back to fast remux.
+- PWA cache bumped to v2140.
+
+NEW REGRESSION SUITE
+validation/validate_v2_14_recu_incremental.py
+PASS initial synthetic scan discovers historical sessions and persists scan_memory.
+PASS second scan discovers exactly one new session and retains historical markers.
+PASS second scan stops at the previous-session boundary on page 1 and does not request page 2.
+PASS batch callback receives max_workers=12.
+PASS challenge/login/unexpected-empty-listing states raise RecuReauthRequired.
+PASS source contains Network.loadNetworkResource + includeCredentials, asset-blocking/Page.stopLoading fallback, and direct-disk preview wiring.
+
+PRESERVED REGRESSION SUITES
+PASS validate_v2_13_core.py
+  - paired device auth token
+  - durable EZ Sort persistence
+  - server catalog cache
+  - lightweight sorter polling
+  - READY count/open-fast semantics
+PASS validate_v2_13_browser_dom.py
+  - transient bootstrap/catalog recovery
+  - no catalog AbortController
+  - stale-tab sequencing
+  - bounded 4,100-model DOM
+  - frame-selection in-place updates
+PASS validate_v2_13_ffmpeg_batch.py
+  - Original 4 frames => 1 ffmpeg process
+  - Review 4 frames => 1 ffmpeg process
+PASS validate_v2_13_nsfw_batch.py
+  - batched NSFW extraction
+  - batched cleanup mosaics
+PASS validate_v2_13_http.py
+  - stable HTTP/1.0 plain JSON
+  - explicit paired-device auth recovery
+  - streamed static assets
+  - timed catalog + diagnostics endpoints
+PASS validate_v2_13_1_recovery.py (cache assertions updated to v2140)
+PASS validate_v2_13_2_catalog_abort.py
+PASS validate_v2_13_3_field_regressions.py
+  - settings corruption repair
+  - settings optimistic locking
+  - exact-signature READY hydration
+  - Recu Originals + Review
+  - real ffmpeg full Original mosaic path
+
+STATIC/SYNTAX GATES
+PASS python compileall for current source tree.
+PASS node --check static/app.js.
+PASS node --check static/rapid.js.
+
+SELF-TEST NOTE
+The complete mobile_self_test.py cannot pass in this Linux build container because this container's Python environment does not have NudeNet installed. The user's Windows Python 3.10 environment previously reported nudenet==3.4.2, Pillow and websocket-client installed. v2.14 added self-test source markers for incremental Recu memory, concurrent verified-Chrome loading, navigation fallback, and local direct-disk preview.
+
+FIELD ITEMS
+- No live Recu request was made from the build container. Confirm the user's installed Chrome accepts Network.loadNetworkResource for the page target; if not, verify the navigation fallback activates.
+- Confirm real Recu kink listing order remains newest-to-oldest.
+- Confirm localhost desktop original-file playback is accepted by Chrome for common MP4/MOV files; TS/MKV may intentionally fall back to remux.
+
+RELEASE PACKAGING HARDENING
+PASS final PATCH excludes active config, roots, durable queue, Recu session/profile/cache, catalog/READY/background/NSFW state and model binary.
+PASS seeded v2.13.3 -> v2.14.0 overlay preserved runtime sentinel files byte-for-byte.
+PASS final FULL archive extracted cleanly and all listed validation suites passed against the extracted archive content.
+PASS FULL archive ships blank access_pin/secret_key for fresh-install local generation.

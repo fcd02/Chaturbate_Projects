@@ -1,0 +1,26 @@
+CTBRec Mobile Reviewer v2.13.2 — Catalog Abort/Liveness Diagnostics Hotfix
+
+FIELD REGRESSION FIX
+- Real iPhone displayed: "Model list temporarily unavailable: signal is aborted without reason".
+- The v2.13 request-cancellation optimization had introduced AbortController into catalog loading.
+- v2.13.1 still used AbortController both to cancel superseded tab loads and to impose a 30-second catalog timeout. Safari can surface those cancellations/timeouts as the quoted signal error.
+
+FIX
+- Model-list/catalog GETs no longer use AbortController at all.
+- Stale tab responses are discarded using request sequence + request-key checks, so old responses cannot overwrite the selected tab even though the browser request is not cancelled.
+- Catalog GET uses the known-simple fetch transport and no browser abort timeout. A genuinely unreachable PC still fails normally and retries; a slow but alive catalog request is allowed to finish instead of being self-aborted at 30 seconds.
+- Obsolete errors from a prior tab are silently ignored.
+- Generic API timeout aborts are converted to a friendly "Request timed out after N seconds" message instead of leaking Safari's DOM AbortError wording.
+
+DIAGNOSTICS
+- /api/catalog now records elapsed time/model count and logs requests >=500 ms.
+- /api/diagnostics/status exposes catalog counts/status, last catalog timing, roots availability and relevant runtime paths.
+- Added collect_mobile_diagnostics.py + collect_mobile_diagnostics.bat. The collector creates a ZIP containing the runtime log, catalog/ready/background state, redacted config, code checksums, local HTTP timing probes, and Windows/Tailscale status where available. Recu session/profile data are excluded and obvious PIN/secret/token/cookie/password fields are redacted.
+
+PRESERVED
+- v2.13 progressive 120-card rendering, request sequencing, catalog caches, fast model open, lightweight polling, streamed files, image cleanup and FFmpeg batching.
+- v2.12 frame cuts, v2.11.3 background liveness, and live-bridge safety.
+
+PWA
+- shell cache: ctbrec-shell-v2132
+- assets: ?v=2132

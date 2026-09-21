@@ -1,0 +1,22 @@
+CTBRec Mobile Reviewer v2.15.6 — Validation Report
+
+FINAL / GREEN
+
+Source and clean-release validation:
+- Python compile: PASS
+- static/app.js, static/rapid.js, static/service-worker.js syntax: PASS
+- All validation/*.py suites: 27/27 PASS
+- New source-timeline/autoladder real-Chromium regression: PASS
+
+Upgrade safety:
+- v2.15.5 -> v2.15.6 seeded PATCH overlay: 13/13 representative runtime/private sentinels byte-identical
+- Targeted overlay regressions v2.15.2 through v2.15.6: PASS
+- PATCH protected-file inventory: PASS
+- FULL SOURCE starter PIN/secret/catalog/action/log sanitation: PASS
+
+Behavior validated:
+- Fallback player presents absolute source timeline instead of pipe-relative 0:00.
+- Direct/HLS -> remux -> compatibility is automatic per file.
+- Premature stream end cannot skip to the next selected file.
+- Terminal failure remains on the current file with diagnostics available.
+- Queue/mosaic/READY/look-ahead/TS-sort/Shift-click behavior remains unchanged.

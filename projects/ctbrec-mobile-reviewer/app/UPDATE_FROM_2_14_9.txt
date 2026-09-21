@@ -1,0 +1,33 @@
+UPDATE FROM v2.14.9 TO v2.15.0
+
+1. Stop Mobile Reviewer.
+2. Overlay CTBRec_Mobile_Reviewer_v2_15_0_PATCH.zip onto the existing v2.14.9 installation.
+3. Restart Mobile Reviewer.
+4. Fully close and reopen the iPhone Home Screen app once so PWA cache v2150 loads.
+
+This patch does NOT contain or overwrite active runtime state such as:
+- mobile_config.json
+- recording_roots.txt
+- mobile_action_queue.json
+- mobile_catalog_cache.json
+- mobile_ready_work_index.json
+- whole-library/background state
+- Recu credentials/profile/cache
+- user/model metadata
+- generated mosaics or media
+
+New controls appear on the Models screen under Find a model:
+- Largest total
+- Random
+- Avg chunk size ↓
+
+Random mode:
+- Optional Min model GB and Max model GB fields.
+- Blank means no bound.
+- Order remains stable through searches/refreshes until Reshuffle is tapped.
+
+Avg chunk size mode:
+- Uses existing persisted chunk definitions only.
+- Does not scan disks, index models, or generate mosaics.
+- Models whose current drive/byte scope has trustworthy chunk metadata sort first by average chunk bytes descending.
+- Models not indexed yet follow by total model size descending.

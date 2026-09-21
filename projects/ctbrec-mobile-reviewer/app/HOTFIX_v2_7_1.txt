@@ -1,0 +1,23 @@
+CTBRec Mobile Reviewer 2.7.1 hotfix
+===================================
+
+Fixes:
+1. Non-NSFW background pass crashed before model 1 with:
+   NameError: name 'tempfile' is not defined
+   The server now imports Python's tempfile standard-library module.
+
+2. A failed Non-NSFW/background pass no longer automatically relaunches every
+   maintenance tick. An error stays stopped and visible until the user explicitly
+   presses Run again, preventing a repeated crash loop from consuming PC resources.
+
+No configuration schema, queue format, Recu session format, offline-pack format,
+or sorting behavior changed from v2.7.
+
+Fastest update:
+- Stop the server.
+- Replace ONLY ctbrec_mobile_server.py with the 2.7.1 file.
+- Restart start_mobile_reviewer.bat.
+- No pip install is required.
+- Tap Run Non-NSFW pass now once.
+
+Or use the full 2.7.1 package and copy state from your v2.7 folder as usual.

@@ -1,0 +1,135 @@
+{
+  "roots_file": "recording_roots.txt",
+  "port": 8787,
+  "scan_on_start": true,
+  "access_pin": "358024",
+  "secret_key": "ff6f70e60649e171fc972280f23c588c3caffee1c84dd73a42b42237337bb879",
+  "ffmpeg_path": "",
+  "mosaic_settings": {
+    "extensions": "mp4,ts",
+    "chunk_gap_minutes": 30,
+    "sample_every_seconds": 15,
+    "columns": 1,
+    "tile_width": 160,
+    "max_tiles_per_image": 120,
+    "max_total_frames": 1,
+    "use_existing_mosaics": false,
+    "recu_enabled": true,
+    "skip_recent_writes": true,
+    "recent_write_grace_seconds": 120,
+    "queue_order": "Largest chunks first"
+  },
+  "review_settings": {
+    "extensions": "mp4,ts",
+    "chunk_gap_minutes": 30,
+    "sample_every_seconds": 15,
+    "columns": 1,
+    "tile_width": 160,
+    "max_tiles_per_image": 120,
+    "max_total_frames": 1,
+    "use_existing_mosaics": false
+  },
+  "recu": {
+    "enabled": false,
+    "browser_debug_port": 1024,
+    "chrome_path": "",
+    "base_url": "https://recu.me",
+    "auto_refresh_current": true
+  },
+  "background_mosaics": {
+    "original": {
+      "enabled": false,
+      "upcoming_count": 0,
+      "idle_only": false,
+      "idle_minutes": 0.0
+    },
+    "review": {
+      "enabled": false,
+      "upcoming_count": 0,
+      "idle_only": false,
+      "idle_minutes": 0.0
+    }
+  },
+  "library_background": {
+    "enabled": false,
+    "original_enabled": false,
+    "review_enabled": false,
+    "idle_minutes": 0.0,
+    "rescan_minutes": 15.0,
+    "pause_when_active": false
+  },
+  "non_nsfw_cleanup": {
+    "enabled": false,
+    "idle_minutes": 0.0,
+    "rescan_minutes": 15.0,
+    "pause_when_active": false,
+    "sample_every_seconds": 30,
+    "detector_model": "640m",
+    "confidence_threshold": 0.1,
+    "borderline_confidence": 0.05,
+    "batch_size": 1,
+    "frame_extract_timeout_seconds": 45,
+    "frame_extract_batch_size": 6,
+    "columns": 1,
+    "tile_width": 160,
+    "max_tiles_per_image": 20,
+    "jpeg_quality": 55,
+    "recent_write_grace_seconds": 120,
+    "explicit_classes": [
+      "ANUS_EXPOSED",
+      "BUTTOCKS_EXPOSED",
+      "FEMALE_BREAST_EXPOSED",
+      "FEMALE_GENITALIA_EXPOSED",
+      "MALE_GENITALIA_EXPOSED"
+    ],
+    "extensions": [
+      ".mp4",
+      ".ts"
+    ]
+  },
+  "keep_last": {
+    "file_path": "keeplasts.txt",
+    "gap_minutes": 1.0,
+    "recent_write_grace_seconds": 0
+  },
+  "background_scheduler": {
+    "priority": "mosaics_first"
+  },
+  "action_queue": {
+    "initial_retry_seconds": 20,
+    "maximum_retry_seconds": 300,
+    "maximum_attempts": 3,
+    "batch_size": 64,
+    "frame_cut_idle_minutes": 0.0
+  },
+  "model_admin": {
+    "enabled": false,
+    "auto_discover": false,
+    "models_json_paths": []
+  },
+  "live_bridge": {
+    "enabled": false,
+    "auto_discover": false,
+    "controller_config_path": "",
+    "ctbrec_dir": "",
+    "bridge_port": 8791,
+    "heartbeat_seconds": 2.0,
+    "snapshot_poll_seconds": 5.0,
+    "offline_grace_seconds": 10.0
+  },
+  "speed_mode": {
+    "ready_suggestions": 8,
+    "offline_pack_chunks": 12,
+    "offline_pack_max_mb": 750.0,
+    "open_fast_initial_chunks": 3,
+    "json_gzip_threshold_bytes": 4096
+  },
+  "video_preview": {
+    "prefer_hls_on_mobile": true,
+    "hls_segment_seconds": 8,
+    "max_width": 960,
+    "video_crf": 28,
+    "audio_bitrate_kbps": 96,
+    "cache_hours": 18
+  }
+}

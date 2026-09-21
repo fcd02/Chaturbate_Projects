@@ -1,0 +1,26 @@
+CTBRec Mobile Reviewer v2.15.7 — Stabilization / selection isolation / exact preview duration
+
+User-visible fixes
+- Frame Cut and other per-chunk selections no longer leak into the next mosaic in Rapid Sort.
+- Added an explicit Clear segment choices / Clear all frame selections button in Review.
+- Shift-click range behavior is now symmetric: after toggling an anchor off, Shift-click clears the inclusive range; after selecting an anchor, Shift-click selects/applies across the inclusive range.
+- Preview source duration is now derived from the actual media via ffprobe/ffmpeg (or native browser metadata), never from `_tail_...` filename semantics.
+- Compatibility/source-timeline preview no longer offers scrub positions beyond the real source duration merely because a filename contains a large tail tag.
+
+Cross-feature hardening found during stabilization audit
+- Rapid Sort's independent current-chunk initializer now resets frame decisions, restore/delete sets, Shift anchors, frame-tile caches and other per-chunk UI state just like the normal path.
+- Rapid Sort now restores the existing scroll-to-top behavior on chunk changes.
+- Delayed draft autosaves are chunk-signature-bound. A stale autosave from the previous mosaic is rejected by the server instead of being written onto the newly-current chunk.
+- Fast Submit also carries the chunk signature and rejects stale decisions.
+- Validated original mosaic sidecar recovery now reuses the exact duration stored in the sidecar before considering a filename tail tag.
+- Unknown preview duration can no longer be interpreted as 'source finished', preventing premature fallback stream endings from auto-advancing to the next selected file.
+- Rapid-mode status messages were brought up to date with the v2.15.2 bounded automatic look-ahead behavior.
+
+Preserved behavior
+- Active-model bounded look-ahead/refill remains unchanged.
+- Exact-model opening, pending self-healing, phone queue lease recovery, mosaic validation/reuse, READY semantics, Recu, Keep Last, Random/Avg Chunk/TS-only ordering, and preview diagnostics remain intact.
+
+Release identity
+- Server: CTBRecMobile/2.15.7
+- PWA shell: ctbrec-shell-v2157
+- Static asset query version: 2157

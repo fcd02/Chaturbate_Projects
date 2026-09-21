@@ -1,0 +1,33 @@
+CTBRec Mobile Reviewer v2.12 — Quick Start
+==========================================
+
+EXISTING v2.11.3 INSTALL (recommended)
+1. Stop Mobile Reviewer.
+2. Overlay the v2.12 DROP-IN or FRAME_CUTS_HOTFIX onto the existing
+   CTBRec_Mobile_Reviewer folder.
+3. Restart Mobile Reviewer.
+4. Fully close/reopen the saved iPhone app once (PWA cache v2120).
+
+NEW: PRECISE REVIEW FRAME CUTS
+- Open Review mode -> select Frame Cut.
+- Choose Leave for review, Cumshots, or Misc Hot Scenes.
+- Tap individual sampled frames. Each selected frame keeps the interval from that
+  timestamp to the next frame boundary; adjacent selected intervals of the same
+  destination are merged.
+- Unselected footage is discarded. Submit queues the job and immediately moves
+  you to the next chunk.
+- The PC waits until idle (default 10 minutes, adjustable in Mobile Settings),
+  then frame-cut jobs outrank background mosaic generation and Non-NSFW scans.
+- Replacement clips are verified FIRST. Only then are every original source
+  recording in that Review chunk moved to MARKED_FOR_DELETION.
+- If Frame Cut is disabled on an old mosaic, Regenerate that mosaic once so the
+  exact timestamp map is embedded.
+
+LIVE CTBREC CONTROL
+The v2.11 identity-verified live bridge remains unchanged: Favorite/priority,
+Pause/Resume, Record Later, Force/Normal Priority, aliases, and safe Remove work
+through the intended running CTBRec bridge. Sorting remains usable if that bridge
+is unavailable. models.json remains read-only.
+
+For a clean install, use the FULL ZIP, run install_mobile_reviewer.bat once, then
+start_mobile_reviewer.bat.

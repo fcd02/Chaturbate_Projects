@@ -1,0 +1,11 @@
+CTBRec Mobile Reviewer v2.15.3
+
+- Fixed a v2.15.2 model-open race that could leave the phone permanently stuck on the __pending__ "Opening this model and locating its first chunk" surface.
+- Pending queues now mirror the real indexing task progress instead of displaying one vague message forever.
+- If a shared model-index task completes/cancels without attaching its discovered chunks to a late-joining active queue, the queue automatically re-arms indexing instead of remaining orphaned.
+- Shared priority-task cleanup now removes only queue targets that the worker actually processed; a target that joined after the worker's final snapshot is preserved for self-healing/new work rather than silently discarded.
+- A genuinely running indexing task is never duplicated by the self-heal path.
+- A model that truly contains zero sortable chunks now reports a terminal error instead of spinning indefinitely.
+- Automatic recovery is bounded to three preparation attempts; after that Reviewer surfaces a real error rather than looping forever.
+- v2.15.2 bounded active-model look-ahead, v2.15.1 Shift-click, v2.15.0 model ordering, v2.14.9 scoped reindex, v2.14.8 playback/open behavior, and all prior safety invariants are preserved.
+- PWA shell cache bumped to v2153; server version is CTBRecMobile/2.15.3.

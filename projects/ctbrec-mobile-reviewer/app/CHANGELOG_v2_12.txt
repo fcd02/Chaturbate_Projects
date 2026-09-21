@@ -1,0 +1,76 @@
+CTBRec Mobile Reviewer v2.12.0 — Precise Review Frame Cuts
+==========================================================
+
+PURPOSE
+-------
+v2.12.0 extends the Review sorter from whole-recording decisions to optional
+frame-boundary decisions, allowing the user to retain only the useful portions
+represented by sampled Review mosaic frames.
+
+PHONE REVIEW WORKFLOW
+---------------------
+- Review mode now offers two granularities:
+  * Whole segments: the established v2.11 behavior.
+  * Frame Cut: each mosaic frame is an exact time boundary.
+- In Frame Cut mode, choose Leave for review, Cumshots, or Misc Hot Scenes and
+  tap individual mosaic frames.
+- A selected frame retains the interval beginning at that frame's timestamp and
+  ending at the next sampled-frame boundary. Consecutive selected intervals of
+  the same destination are merged into one output clip.
+- Unselected intervals are discarded; they are not copied into separate waste
+  clips.
+- Adjacent retained intervals can span CTBRec source-file boundaries. The PC
+  concatenates the source timeline and encodes the merged kept range as one
+  verified MP4 output.
+
+DURABLE / IDLE PC EXECUTION
+---------------------------
+- Submit writes a durable review_frame_cuts job and immediately advances the
+  phone to the next sortable chunk.
+- Precise cut jobs wait until the PC has been idle for the configured threshold
+  (default: 10 minutes; adjustable in Mobile Settings).
+- Before that idle threshold, whole-library mosaic generation and Non-NSFW
+  scanning may continue.
+- Once a frame-cut job becomes idle-eligible it outranks both whole-library
+  mosaic generation and Non-NSFW scanning.
+- Interactive/current-phone mosaic work still outranks frame cutting. If the PC
+  becomes active or the phone requests mosaic work while ffmpeg is cutting, the
+  temporary output is stopped/removed and the durable job resumes later without
+  consuming a failure retry.
+
+DATA SAFETY
+-----------
+- Review mosaics now persist exact per-frame chunk timestamp, local source
+  timestamp, and interval-end timestamp in the embedded sidecar layout.
+- Older embedded Review layouts are accepted only when their exact sampling
+  timeline can be reconstructed safely. Legacy hit maps without exact timing
+  require one mosaic regeneration before Frame Cut can be enabled.
+- Output clips are written to job-specific temporary paths, verified for file
+  size and duration, atomically committed, and reverified.
+- Every replacement clip must verify before ANY original Review recording is
+  permitted to leave its source folder.
+- After all outputs verify, every original source recording from that Review
+  chunk is moved through the existing reversible MARKED_FOR_DELETION path.
+- Output names contain the durable job token so retries/restarts can safely
+  recognize their own outputs without overwriting unrelated files.
+- Changed source size/mtime after the decision is a safety block; the job will
+  not silently cut different bytes than the mosaic represented.
+- Back/Undo stops an in-progress frame cut, restores any moved originals, and
+  removes only the replacement clips uniquely created by that durable job.
+
+OUTPUT DESTINATIONS
+-------------------
+- Leave for review -> <model>\Review
+- Cumshots         -> <model>\Cumshots
+- Misc Hot Scenes  -> <model>\Misc Hot Scenes
+- Delete / unselected -> no replacement output; original source ultimately goes
+  to the drive's MARKED_FOR_DELETION path after kept outputs verify.
+
+COMPATIBILITY
+-------------
+- Whole-segment Review sorting is unchanged and remains available beside Frame
+  Cut mode.
+- Existing mobile config/state/queue/Recu/live-bridge data is not required to be
+  replaced. The new frame-cut idle setting defaults to 10 minutes when absent.
+- PWA shell cache namespace is v2120. Fully close/reopen the iPhone Home Screen
+  app once after installing.

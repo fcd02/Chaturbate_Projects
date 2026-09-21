@@ -1,0 +1,28 @@
+CTBRec Mobile Reviewer — Update v2.14.7 -> v2.14.8
+===================================================
+
+1. Stop Mobile Reviewer.
+2. Extract `CTBRec_Mobile_Reviewer_v2_14_8_PATCH.zip` over the existing v2.14.7 install.
+3. Do NOT replace your runtime state/config with files from a FULL SOURCE archive.
+4. Restart Reviewer.
+5. Fully close/reopen the iPhone Home Screen PWA once so shell cache v2148 loads.
+
+Expected behavior after update
+- Tapping a model always opens that exact model; it no longer redirects to another ready model.
+- A model with no ready mosaic shows a preparing state and generates its first mosaic on demand.
+- There is no 12-second open-fast client timeout.
+- Future mosaics do not pre-generate automatically. They generate when reached, or only when you explicitly use Generate Ahead.
+- Leaving the model stops its model-specific future work/cancels its demand.
+- Video preview automatically falls back Direct/HLS -> fast remux -> compatibility transcode if playback fails or stalls.
+
+Patch safety
+The patch contains program/static/docs/validation files only. It must not overwrite:
+- mobile_config.json
+- recording_roots.txt
+- mobile_action_queue.json
+- catalog/ready/library/NSFW runtime state
+- Recu session/profile/cache
+- model metadata
+- media/mosaics
+- local logs
+- NudeNet model binary
