@@ -1,0 +1,83 @@
+CTBRec Discovery v0.4.6 — Release Validation Report
+===================================================
+
+Release purpose
+---------------
+Fix the repeated Git Bridge bootstrap failures at the release-engineering level. The v0.4.5 field log showed the current validator receiving {'seen': 3, 'imported': 3}, which exactly reproduces the old v0.4.0 Mobile Reviewer catalog importer. The clean v0.4.5 FULL SOURCE contained the repaired importer, but the v0.4.5 PATCH was a minimal diff and did not include discovery/importers.py. Therefore a machine that skipped/interrupted v0.4.1 could present newer version/validation files while still executing stale v0.4.0 runtime source.
+
+Permanent release changes
+-------------------------
+- PATCH is now cumulative/self-healing, not a minimal diff.
+- PATCH_MANIFEST.json requires patch_type=cumulative_public_source_overlay and min_supported_version=0.3.0.
+- validation/source_manifest.json SHA-256 pins canonical source files.
+- validation/runner.py verifies canonical hashes before behavioral validation.
+- Git Bridge v1.2.0 rejects PATCH ZIPs missing a canonical file or containing a canonical hash mismatch.
+- tools/release/build_release.py is the authoritative artifact builder.
+- catalog/Recu cursor generations bumped to v46 / v46| for one corrective reparse.
+
+Source-tree validation
+----------------------
+PASS — validation/runner.py --mode package
+PASS — canonical source manifest verification (34 canonical files)
+PASS — Python compile current runtime/tests/validation/bridge
+PASS — 27/27 unittest regression tests
+PASS — Node syntax check static/app.js
+PASS — validation/validate_current.py
+PASS — validation/validate_package.py
+PASS — current nested-catalog fixture: 5 row/group records -> 4 unique model accounts; old structural artifacts safely removed
+
+Source-drift diagnostics regression
+-----------------------------------
+PASS — intentionally modified discovery/importers.py after manifest generation.
+Expected failure occurred BEFORE behavioral tests with explicit message:
+  Hash mismatch: discovery/importers.py ...
+  Apply the CURRENT cumulative PATCH ZIP over the live folder, then rerun setup.
+
+PATCH contract negative tests
+-----------------------------
+PASS — a PATCH ZIP with discovery/importers.py removed was rejected:
+  Cumulative PATCH is missing canonical source files: discovery/importers.py
+PASS — a PATCH ZIP with modified discovery/importers.py but unchanged manifest was rejected:
+  PATCH canonical source hash mismatch: discovery/importers.py ...
+
+Direct-upgrade / self-healing tests
+-----------------------------------
+PASS — exact cumulative v0.4.6 PATCH over v0.3.0 FULL SOURCE.
+  - active discovery_config.json sentinel preserved byte-for-byte
+  - SQLite state sentinel preserved byte-for-byte
+  - unrelated private runtime sentinel preserved byte-for-byte
+  - runtime validation PASS
+  - public-safe staged package validation PASS
+
+PASS — exact cumulative v0.4.6 PATCH over a deliberately poisoned mixed tree:
+  - baseline began from v0.4.0 FULL SOURCE
+  - later v0.4.2/v0.4.3/v0.4.4/v0.4.5 minimal patches were overlaid while v0.4.1 was intentionally skipped
+  - pre-v0.4.6 discovery/importers.py SHA-256 was dea17ab20897d0388bb672eabde39912234bd01e2bcdae5e7d00e4fef63da1bd (old v0.4.0 importer)
+  - cumulative v0.4.6 PATCH replaced it with the canonical current importer
+  - private config/SQLite/unrelated runtime sentinels remained byte-for-byte unchanged
+  - runtime validation PASS
+  - public-safe staged package validation PASS
+
+Git Bridge bootstrap simulation
+-------------------------------
+PASS — local bare-origin end-to-end setup simulation from the exact patched stale/mixed runtime:
+  - public-safe staging created
+  - current source-manifest verification PASS
+  - full package validation PASS
+  - bootstrap/ctbrec-discovery-v0.4.6 branch created
+  - commit created and pushed to local bare origin
+  - simulated PR created and squash-merged
+  - main refreshed
+  - release branch removed
+  - ctbrec-discovery-v0.4.6 tag created/pushed
+  - external bridge config written
+  - final Git worktree clean
+  - repo app revalidated successfully
+
+Production GitHub safety check
+------------------------------
+PASS — read-only GitHub connector check confirmed fcd02/Chaturbate_Projects main still contains only historical test.md before this release. Previous failed bootstrap attempts did not partially publish Discovery.
+
+Artifact policy
+---------------
+PATCH is the primary artifact and is generated LAST from the final source tree. It is cumulative and includes every canonical public source file. FULL SOURCE, current handoff, validation report, and SHA-256 checksums are mandatory secondary artifacts. No email delivery; Git/Git Bridge is the project history path.

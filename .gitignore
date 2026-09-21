@@ -56,3 +56,16 @@ Thumbs.db
 **/*.zip
 **/*.7z
 **/*.rar
+
+# BEGIN CTBREC DISCOVERY GIT BRIDGE
+# CTBRec Discovery private/runtime state
+**/ctbrec-discovery/app/discovery_config.json
+**/ctbrec-discovery/app/state/
+**/ctbrec-discovery/app/**/*.sqlite
+**/ctbrec-discovery/app/**/*.sqlite3
+**/ctbrec-discovery/app/**/*.db
+**/ctbrec-discovery/app/**/*.log
+**/ctbrec-discovery/app/**/*.base64.txt
+**/ctbrec-discovery/app/**/*.base85.txt
+**/ctbrec-discovery/app/**/*.zip
+# END CTBREC DISCOVERY GIT BRIDGE

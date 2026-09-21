@@ -1,0 +1,68 @@
+CTBRec Discovery v0.3.0 — Validation Report
+Date: 2026-09-20
+
+RELEASE SCOPE
+- First background collector release.
+- Optional official Chaturbate affiliate Users Online collector.
+- Local Recu discovery export, neighbor export, continuity export, and existing Recu archive collectors.
+- Sources UI/API, monotonic seen timestamps, and constrained new-account context signal.
+- No live CTBRec mutation consumer; action outbox remains execute:false.
+
+STATIC / SYNTAX GATES
+PASS - Python compileall for discovery/, tests/, validation/.
+PASS - Node JavaScript syntax check for static/app.js.
+PASS - package safety validator on clean source tree.
+
+UNIT / REGRESSION SUITE
+PASS - 17 tests.
+Covered:
+  1. priority mapping;
+  2. Mobile Reviewer catalog camelCase/operational-state import;
+  3. personalized neighbor ranking and feedback;
+  4. evidence deduplication;
+  5. Recu-only signal cannot dominate total score;
+  6. stale Recu signal freshness decay;
+  7. official-redirect continuation and persistent reject;
+  8. feedback Undo and inert action outbox;
+  9. JSONL evidence inbox;
+ 10. Reviewer 401/403 auth boundary treated as reachable, not bypassed;
+ 11. monotonic earliest first_seen / latest last_seen;
+ 12. synthetic affiliate pagination/public filtering/new+known candidate policy;
+ 13. affiliate WM secret omitted from collector status;
+ 14. Recu discovery-export file/signature dedupe;
+ 15. neighbor-export evidence influences personalized recommendation;
+ 16. continuity export produces Band A official-redirect suggestion;
+ 17. local Recu archives enrich known accounts without expanding candidate universe.
+
+HTTP SMOKE
+PASS - started real ThreadingHTTPServer on disposable loopback port.
+PASS - GET /api/health returned version 0.3.0.
+PASS - GET /api/collectors returned all five collectors disabled under disposable config.
+PASS - GET /api/recommendations returned valid empty result.
+PASS - static index loaded successfully.
+
+UPGRADE / PRIVATE-STATE SAFETY
+PASS - simulated v0.2.0 installation seeded with:
+  - active discovery_config.json containing fake private marker and fake WM secret;
+  - state/discovery.sqlite3 sentinel;
+  - additional private runtime sentinel.
+PASS - v0.3 patch overlay preserved all three seeded private/runtime files byte-for-byte.
+PASS - new collector source and v0.3 version landed after overlay.
+
+COLLECTOR SAFETY BOUNDARIES
+PASS - shipping collector configuration defaults disabled.
+PASS - shipping WM ID is blank.
+PASS - collector status payload does not expose configured WM ID.
+PASS - Chaturbate collector code uses only the official public affiliate onlinerooms endpoint.
+PASS - collector module contains no direct Recu crawler/network target.
+PASS - no face_recognition / DeepFace dependency or implementation.
+PASS - integration adapter contains no models.json mutation path.
+PASS - no active config, SQLite runtime DB, logs, cookies, Recu session files, or Python cache files are permitted in shipping tree.
+
+KNOWN ENVIRONMENT LIMITATIONS
+- Real-PC integration against the user's currently running Mobile Reviewer, Rapid Sorter, Live Control, and CTBRec instances cannot be executed in this container.
+- No real Chaturbate affiliate request was issued because a user-owned WM ID is intentionally not available in the build environment. Pagination/parser behavior is covered by a synthetic multi-page harness.
+- Recu collectors are validated against local synthetic export/cache shapes only; this release deliberately does not perform authenticated Recu network acquisition.
+
+RELEASE ASSESSMENT
+PASS for v0.3.0 packaging. Real-PC use should begin with collectors disabled, then enable one source at a time after pointing the active config at the user's local files / own affiliate WM ID.

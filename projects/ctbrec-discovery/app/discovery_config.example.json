@@ -1,0 +1,62 @@
+{
+  "listen_host": "127.0.0.1",
+  "listen_port": 8793,
+  "database_path": "state/discovery.sqlite3",
+  "mobile_catalog_cache": "C:\\PATH\\TO\\CTBRec_Mobile_Reviewer\\mobile_catalog_cache.json",
+  "favorite_models_file": "",
+  "continue_models_file": "",
+  "sync_interval_seconds": 60,
+  "default_platform": "chaturbate",
+  "external_evidence_inbox": "state/inbox",
+  "reviewer_base_url": "http://127.0.0.1:8787",
+  "reviewer_probe_timeout_seconds": 2.5,
+  "queue_preference_actions": true,
+  "collectors": {
+    "live_control_models": {
+      "enabled": true,
+      "poll_seconds": 60
+    },
+    "chaturbate_affiliate": {
+      "enabled": false,
+      "wm": "",
+      "poll_seconds": 900,
+      "timeout_seconds": 12,
+      "page_size": 500,
+      "max_pages": 100,
+      "candidate_mode": "new_and_known",
+      "allowed_genders": []
+    },
+    "recu_discovery_export": {
+      "enabled": false,
+      "path": "C:\\PATH\\TO\\recu_discovery_export.json",
+      "poll_seconds": 300
+    },
+    "neighbor_export": {
+      "enabled": false,
+      "path": "C:\\PATH\\TO\\model_neighbors.csv",
+      "poll_seconds": 300
+    },
+    "continuity_export": {
+      "enabled": false,
+      "path": "C:\\PATH\\TO\\account_continuity.csv",
+      "poll_seconds": 300
+    },
+    "recu_local_archives": {
+      "enabled": false,
+      "paths": [
+        "C:\\PATH\\TO\\CTBRec_Rapid_Sorter\\runtime\\recu_local_archive.json",
+        "C:\\PATH\\TO\\CTBRec_Mobile_Reviewer\\mosaic_lite_recu_cache.json"
+      ],
+      "poll_seconds": 600
+    }
+  },
+  "live_control_base_url": "http://127.0.0.1:8792",
+  "live_control_probe_timeout_seconds": 2.0,
+  "recommendation_filters": {
+    "allowed_genders": [
+      "m"
+    ],
+    "include_unknown_gender": true,
+    "include_couples": false
+  }
+}

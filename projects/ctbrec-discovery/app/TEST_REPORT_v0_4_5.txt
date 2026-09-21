@@ -1,0 +1,67 @@
+CTBRec Discovery v0.4.5 — Validation Report
+Release focus: authoritative current-release validation + Git Bridge v1.1.0
+Date: 2026-09-20/21
+
+FIELD FAILURE BEING FIXED
+- User's v0.4.4 Git Bridge bootstrap staged the current live tree and then auto-ran every historical validate_vXYZ.py present.
+- validate_v041.py failed with: AssertionError: {'seen': 3, 'imported': 3, 'errors': 0}.
+- Root cause: historical validators were being treated as forward-compatible release gates. They are not.
+
+ARCHITECTURAL FIX
+- validation/release_manifest.json is now the authority for the current release/version/suite.
+- validation/runner.py is the single automatic validation entrypoint.
+- validation/validate_current.py is the current behavioral/regression suite.
+- validation/validate_package.py is the current package/security suite.
+- historical validate_vXYZ.py files are archival only and are never auto-executed by Git Bridge or VALIDATE.bat.
+- Git Bridge v1.1.0 invokes only validation/runner.py for package staging and live-runtime validation.
+- scripts/VALIDATE.bat invokes only validation/runner.py --mode auto.
+
+VALIDATION RESULTS
+1. Current source package validation: PASS
+   - Python compile: PASS
+   - 27/27 unit/regression tests: PASS
+   - Node syntax check static/app.js: PASS
+   - validate_current.py: PASS
+   - validate_package.py: PASS
+
+2. Historical-validator absence test: PASS
+   - All validation/validate_v0*.py files removed from a staging copy.
+   - validation/runner.py --mode package still PASS.
+
+3. Historical-validator poison test: PASS
+   - Added validation/validate_v999.py containing unconditional AssertionError('HISTORICAL VALIDATOR MUST NEVER AUTO-RUN').
+   - validation/runner.py --mode package still PASS.
+   - Proves automatic validation does not discover/run historical validators by glob.
+
+4. Local bare-origin Git Bridge bootstrap simulation: PASS
+   - Seeded umbrella repository with only test.md.
+   - Public-safe staging validation PASS.
+   - Bootstrap branch created and pushed.
+   - Simulated PR created and squash-merged.
+   - main refreshed successfully.
+   - ctbrec-discovery-v0.4.5 tag created/pushed.
+   - final worktree clean.
+   - external bridge config created outside repository.
+
+5. Candidate exact-PATCH overlay from v0.4.4: PASS
+   - active discovery_config.json seeded with private sentinel/WM value.
+   - state/discovery.sqlite3 seeded.
+   - unrelated private runtime and private user sentinel seeded.
+   - exact PATCH archive safety validation PASS.
+   - overlay preserved all seeded private/runtime files byte-for-byte.
+   - runtime validation PASS with historical validators present.
+   - public-safe bridge staging validation PASS with historical validators present.
+   - historical validators then removed; runtime validation PASS.
+   - public-safe staging validation PASS with historical validators absent.
+
+6. Real GitHub read-only check: PASS
+   - fcd02/Chaturbate_Projects main still contains only historical test.md before bootstrap.
+   - No prior failed bootstrap partially published Discovery.
+
+FINAL ARTIFACT GATE
+- After this report/handoff was frozen, PATCH and FULL SOURCE were regenerated.
+- The exact FINAL PATCH ZIP was overlaid again onto a fresh v0.4.4 installation with seeded private/runtime sentinels and revalidated.
+- The exact FINAL FULL SOURCE ZIP was extracted to a fresh directory and package-validated.
+- ZIP integrity and SHA-256 checksums were generated and verified.
+
+RESULT: PASS — v0.4.5 is approved for field installation and Git Bridge bootstrap retry.

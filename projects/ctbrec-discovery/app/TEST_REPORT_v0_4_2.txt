@@ -1,0 +1,85 @@
+CTBRec Discovery v0.4.2 Validation Report
+Generated: 2026-09-20
+
+1. Python compile
+PASS
+
+2. Unit/regression suite
+test_affiliate_collector_paginates_filters_and_discovers_new (test_core.CoreTests.test_affiliate_collector_paginates_filters_and_discovers_new) ... ok
+test_affiliate_status_never_exposes_wm (test_core.CoreTests.test_affiliate_status_never_exposes_wm) ... ok
+test_catalog_import_camelcase_and_operational_state (test_core.CoreTests.test_catalog_import_camelcase_and_operational_state) ... ok
+test_catalog_import_skips_unchanged_file_after_first_v4_read (test_core.CoreTests.test_catalog_import_skips_unchanged_file_after_first_v4_read) ... ok
+test_collector_busy_is_per_source_not_global (test_core.CoreTests.test_collector_busy_is_per_source_not_global) ... ok
+test_continuity_export_creates_band_a_redirect (test_core.CoreTests.test_continuity_export_creates_band_a_redirect) ... ok
+test_engine_inbox (test_core.CoreTests.test_engine_inbox) ... ok
+test_evidence_deduplicates_current_signal (test_core.CoreTests.test_evidence_deduplicates_current_signal) ... ok
+test_feedback_undo_and_outbox (test_core.CoreTests.test_feedback_undo_and_outbox) ... ok
+test_global_gender_filter_excludes_known_female_and_couples (test_core.CoreTests.test_global_gender_filter_excludes_known_female_and_couples) ... ok
+test_live_control_collector_reuses_loopback_payload_and_priority (test_core.CoreTests.test_live_control_collector_reuses_loopback_payload_and_priority) ... ok
+test_neighbor_export_drives_personalized_candidate (test_core.CoreTests.test_neighbor_export_drives_personalized_candidate) ... ok
+test_neighbor_ranking_and_feedback (test_core.CoreTests.test_neighbor_ranking_and_feedback) ... ok
+test_nested_three_bucket_mobile_catalog_imports_unique_models_and_cleans_v040_artifacts (test_core.CoreTests.test_nested_three_bucket_mobile_catalog_imports_unique_models_and_cleans_v040_artifacts) ... ok
+test_official_redirect_continuity_and_persistent_reject (test_core.CoreTests.test_official_redirect_continuity_and_persistent_reject) ... ok
+test_priority_mapping (test_core.CoreTests.test_priority_mapping) ... ok
+test_real_mobile_catalog_map_with_list_values_imports_models (test_core.CoreTests.test_real_mobile_catalog_map_with_list_values_imports_models) ... ok
+test_recu_discovery_export_is_deduped (test_core.CoreTests.test_recu_discovery_export_is_deduped) ... ok
+test_recu_local_archive_only_enriches_known_accounts (test_core.CoreTests.test_recu_local_archive_only_enriches_known_accounts) ... ok
+test_recu_local_archive_reports_parse_match_skip_diagnostics (test_core.CoreTests.test_recu_local_archive_reports_parse_match_skip_diagnostics) ... ok
+test_recu_signal_cannot_be_only_signal_to_force_100 (test_core.CoreTests.test_recu_signal_cannot_be_only_signal_to_force_100) ... ok
+test_recu_v41_cursor_forces_reparse_after_v040_and_matches_catalog_accounts (test_core.CoreTests.test_recu_v41_cursor_forces_reparse_after_v040_and_matches_catalog_accounts) ... ok
+test_reviewer_probe_prefers_lightweight_api_auth_over_shell_get (test_core.CoreTests.test_reviewer_probe_prefers_lightweight_api_auth_over_shell_get) ... ok
+test_reviewer_probe_treats_auth_boundary_as_reachable (test_core.CoreTests.test_reviewer_probe_treats_auth_boundary_as_reachable) ... ok
+test_seen_timestamps_are_monotonic (test_core.CoreTests.test_seen_timestamps_are_monotonic) ... ok
+test_stale_recu_signal_decays (test_core.CoreTests.test_stale_recu_signal_decays) ... ok
+test_test_label_is_neutral_not_positive_seed (test_core.CoreTests.test_test_label_is_neutral_not_positive_seed) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 1.118s
+
+OK
+
+3. JavaScript syntax
+PASS
+
+4. Historical integration harness v0.4.0
+[http] 127.0.0.1 "GET /api/health HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/diagnostics HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/settings HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/recommendations?limit=10 HTTP/1.1" 200 -
+[http] 127.0.0.1 "POST /api/settings HTTP/1.1" 200 -
+PASS v0.4 real-cache-shape, Live Control local reuse, Recu enrichment, gender filter, safe-settings secret preservation, nonblocking construction, and HTTP smoke
+
+5. Field-adapter integration harness v0.4.1
+[http] 127.0.0.1 "GET /api/health HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/diagnostics HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/settings HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/recommendations?limit=10 HTTP/1.1" 200 -
+[http] 127.0.0.1 "GET /api/collectors HTTP/1.1" 200 -
+PASS v0.4.1 nested Mobile Reviewer catalog, v0.4 artifact cleanup, Recu forced reparse/match, per-source collector locks, lightweight Reviewer health, filters, and HTTP smoke
+
+6. Git Bridge validation v0.4.2
+PASS v0.4.2 Git Bridge constants, protected-path filter, public-safe snapshot, patch guard, version inference, config and documentation
+
+7. Package safety
+PASS package structure, v0.4.2 Git Bridge files, v0.4.1 nested-catalog/collector-lock/Reviewer-probe gates, local-first defaults, recommendation filters, integration boundary, and safety gates
+
+8. Git Bridge local no-push integration simulation
+PASS: local bare-origin simulation applied v0.4.2 PATCH to a v0.4.1 repo copy; full release validation passed; release/ctbrec-discovery-v0.4.2 commit created; no runtime deployment occurred under --no-push.
+
+SUMMARY
+- 27/27 unit/regression tests PASS
+- validate_v040.py PASS
+- validate_v041.py PASS
+- validate_v042.py PASS
+- validate_package.py PASS
+- Git Bridge no-push end-to-end local Git simulation PASS
+- No network/GitHub mutation was performed by release validation.
+
+9. v0.4.1 -> v0.4.2 overlay preservation
+PASS: seeded active discovery_config.json, state/discovery.sqlite3, and unrelated private runtime sentinel remained byte-for-byte unchanged after exact final PATCH overlay.
+
+10. Clean FULL SOURCE extraction revalidation
+PASS: Python compile, 27/27 unit/regression tests, JavaScript syntax, validate_v040.py, validate_v041.py, validate_v042.py, and validate_package.py all passed from a fresh extraction of the final FULL SOURCE candidate.
+
+11. Archive integrity
+PASS: FULL SOURCE, PATCH, and standalone Git Bridge ZIPs passed ZIP integrity tests.

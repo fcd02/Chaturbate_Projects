@@ -1,0 +1,77 @@
+CTBRec Discovery v0.4.0 — Validation Report
+Date: 2026-09-20
+
+STATUS: RELEASE VALIDATION GREEN
+
+FIELD INPUT THAT DROVE THIS RELEASE
+- v0.3 ran successfully on the user PC once the direct affiliate collector was disabled during startup.
+- Real Mobile Reviewer catalog existed (~2.2 MB; top-level keys updated_at/roots_file/catalog) but v0.3 reported 0/0 imported.
+- Both configured local Recu files existed but v0.3 reported imported=0.
+- Feedback, Undo, persistence, navigation and standalone UI smoke checks passed.
+- Visible Discover scores were therefore mostly neutral baseline/context/exploration rather than mature personalization.
+
+IMPLEMENTATION VALIDATION COMPLETED
+1. Python compile/static syntax: PASS
+   - discovery/*.py
+   - tests/test_core.py
+   - validation/*.py
+2. Unit/regression suite: PASS — 23/23 tests
+   Coverage includes:
+   - priority mapping
+   - real Mobile Reviewer catalog map/list shape
+   - unchanged-catalog fingerprint skip
+   - Test label neutral for taste learning
+   - hard gender eligibility, including empty-known-gender semantics
+   - Live Control loopback model/priority/affiliateRoomInfo reuse
+   - Recu local archive parse/match/skip diagnostics
+   - official affiliate pagination/filter/new-account behavior
+   - affiliate WM non-disclosure
+   - evidence dedupe/freshness
+   - feedback Undo + inert outbox
+   - neighbor personalization
+   - explicit continuity import + persistent reject
+3. JavaScript syntax: PASS — node --check static/app.js
+4. v0.4 integration harness: PASS
+   - App construction remains nonblocking
+   - real catalog shape imports
+   - fake Live Control /api/models enriches locally
+   - Recu models-map cache enriches known candidate
+   - known female excluded under default male filter
+   - HTTP health/diagnostics/settings/recommendations return valid JSON
+   - Settings API does not expose sentinel WM secret
+   - Settings update preserves unrelated sentinel WM and Live Control config on disk
+5. Package structure/safety validator: PASS
+   - shipping example has direct affiliate disabled + blank WM
+   - live_control_models is enabled by default
+   - default recommendation filter is male + unknown, couples false
+   - no active discovery_config.json
+   - no runtime DB/log/private session material
+   - no face-recognition dependencies
+   - no direct models.json mutation contract
+6. v0.3 -> v0.4 candidate PATCH overlay: PASS
+   - seeded active discovery_config.json preserved byte-for-byte
+   - seeded state/discovery.sqlite3 preserved byte-for-byte
+   - seeded private runtime sentinel preserved byte-for-byte
+7. Clean candidate FULL SOURCE extraction: PASS
+   - Python compile
+   - 23/23 unit tests
+   - JavaScript syntax
+   - v0.4 integration harness
+   - package safety validator
+
+IMPORTANT VALIDATED BOUNDARIES
+- Live Control collector is loopback-only and makes no Chaturbate request itself.
+- Direct official affiliate collector is scheduled-disabled by default; configured users may explicitly run one one-shot sweep.
+- Recu local archive collector performs local file reads only.
+- No CTBRec action consumer exists; outbox payloads remain execute:false.
+- Startup binds/prints the service before initial sync begins.
+- Settings API exposes no WM credentials and preserves unrelated active config keys.
+
+FINAL RELEASE-BYTE GATES
+The final FULL/PATCH archives are rebuilt after this report/handoff snapshot, then must pass:
+- ZIP integrity;
+- exact final PATCH overlay against a seeded v0.3 installation with byte-identical protected state;
+- clean final FULL extraction with compile + 23 tests + JS syntax + v0.4 harness + package validator;
+- SHA-256 generation.
+
+This report is considered final only if those final-byte gates pass. The accompanying SHA256SUMS file records the final archive identities.
