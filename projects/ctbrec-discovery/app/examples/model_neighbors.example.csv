@@ -1,0 +1,2 @@
+seed_username,candidate_username,source,kind,appearances,opportunities,confidence,observed_at
+favorite_seed,candidate_a,authorized_similarity_source,similar_model,8,10,0.90,2026-09-20T12:00:00-04:00

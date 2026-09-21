@@ -1,0 +1,89 @@
+CTBRec Discovery v0.4.3 Validation Report
+=========================================
+Date: 2026-09-20
+Release purpose: Git Bridge bootstrap recovery / Windows field hotfix
+Bridge version: 1.0.1
+
+FIELD FAILURE REPRODUCED / EXPLAINED
+------------------------------------
+Observed user log:
+- GitHub CLI authenticated successfully as fcd02.
+- main checked out and fast-forwarded successfully.
+- v1.0 created the public-safe baseline in the local clone.
+- validation stopped at validation/validate_v040.py.
+- the CMD wrapper then automatically ran the bridge a second time under `python` because it treated every non-zero `py -3.10` exit as a launcher failure.
+- the second invocation saw the files created by the first invocation and failed with:
+    ?? .gitignore
+    ?? PROJECTS.md
+    ?? projects/
+
+GitHub connector inspection confirmed remote fcd02/Chaturbate_Projects main was unchanged and still contained only historical test.md. No partial Discovery bootstrap was pushed.
+
+ROOT CAUSES FIXED
+-----------------
+1. Setup wrote into the real Git working tree before validation.
+2. CMD wrappers retried a real bridge failure under a second Python interpreter.
+3. Historical validate_v040.py used a brittle <0.5 second App construction assertion.
+4. Validation exceptions did not surface the child process output that explained the assertion failure.
+5. v1.0 had no narrow recovery path for its own interrupted untracked bootstrap files.
+
+V0.4.3 / BRIDGE V1.0.1 FIXES
+----------------------------
+- public-safe source is copied to a temporary staging directory first;
+- full release validation runs against staging before Git working-tree mutation;
+- only after staging validation passes is projects/ctbrec-discovery/app written;
+- setup recognizes/removes only unmistakable untracked Discovery bootstrap artifacts carrying its marker blocks / project path;
+- tracked modifications and unrelated untracked files are never auto-cleaned;
+- Setup/Apply/Status CMD launchers select `py -3.10` when available, otherwise `python`, but never retry after an actual bridge failure;
+- validation failures now include the last 80 output lines in the visible error;
+- validate_v040 startup gate defaults to 5.0 seconds and is configurable with CTBREC_VALIDATION_STARTUP_MAX_SECONDS;
+- bridge config is saved only after successful bootstrap publication;
+- root README.md and SECURITY.md are created when missing; historical test.md placeholder is removed by the bootstrap commit;
+- stored Windows-style repo subpaths are normalized to native paths for cross-platform bridge testing.
+
+AUTOMATED VALIDATION
+--------------------
+PASS: Python py_compile for discovery/, tests/, validation/, and bridge.py
+PASS: 27/27 unit/regression tests
+PASS: Node JavaScript syntax check for static/app.js
+PASS: validation/validate_v040.py
+PASS: validation/validate_v041.py
+PASS: validation/validate_v042.py
+PASS: validation/validate_v043.py
+PASS: validation/validate_package.py after cache cleanup
+
+validate_v043.py specifically verifies:
+- bridge version 1.0.1;
+- 5-second configurable historical startup threshold;
+- setup validation occurs before repo mutation;
+- launcher scripts do not contain the v1.0 retry-on-any-error pattern;
+- interrupted bootstrap artifacts are recovered while tracked test.md remains untouched;
+- unrelated untracked user files are preserved and recovery refuses to guess.
+
+END-TO-END GIT SETUP SIMULATION
+-------------------------------
+PASS using a temporary bare Git origin, main branch, local clone, and fake GitHub CLI PR/merge shim.
+The actual bridge setup flow:
+- authenticated through shim;
+- validated staged public-safe source;
+- created bootstrap/ctbrec-discovery-v0.4.3;
+- committed 58 baseline files;
+- pushed bootstrap branch;
+- created simulated PR URL;
+- simulated squash merge into main;
+- deleted bootstrap branch;
+- created/pushed ctbrec-discovery-v0.4.3 tag;
+- left local clone clean;
+- wrote bridge config outside Git;
+- produced projects/ctbrec-discovery/app and canonical HANDOFF.md;
+- removed historical test.md.
+
+PACKAGE / UPGRADE GATES
+-----------------------
+CONFIRMED FINAL PACKAGE / UPGRADE GATES
+---------------------------------------
+PASS: PATCH contains no discovery_config.json, state DB, runtime caches, logs, cookies/session data, media, archives, or credentials;
+PASS: exact v0.4.2 -> v0.4.3 patch overlay preserved seeded active discovery_config.json and state/private sentinels byte-for-byte;
+PASS: clean FULL SOURCE extraction reran the complete validation suite;
+PASS: FULL SOURCE, PATCH, and standalone Git Bridge ZIP passed ZIP integrity checks;
+PASS: SHA-256 checksums generated for user verification.

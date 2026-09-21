@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>CTBRec Discovery</title>
+  <link rel="stylesheet" href="/styles.css?v=040">
+</head>
+<body>
+<header>
+  <div><strong>CTBRec Discovery</strong><span id="version">v0.4.1</span></div>
+  <div class="head-actions"><button id="undo">Undo</button><button id="sync">Sync</button></div>
+</header>
+<nav>
+  <button class="tab active" data-view="discover">Discover</button>
+  <button class="tab" data-view="returns">Possible Returns</button>
+  <button class="tab" data-view="sources">Sources</button>
+  <button class="tab" data-view="setup">Setup</button>
+  <button class="tab" data-view="status">Status</button>
+</nav>
+<main>
+  <div id="flash" class="flash" hidden></div>
+  <section id="discover" class="view active">
+    <div id="readiness" class="readiness">Loading personalization status…</div>
+    <p class="muted">The number on each card is a 0–100 <strong>ranking index</strong>, not the probability that you will like the model. v0.4.1 excludes known female accounts by default and treats <strong>Test</strong> as neutral/uncertain training evidence.</p>
+    <div id="cards"></div>
+  </section>
+  <section id="returns" class="view">
+    <p class="muted">Non-biometric continuation candidates. Confirmed mismatches stay rejected so they do not keep resurfacing.</p>
+    <div id="returnCards"></div>
+  </section>
+  <section id="sources" class="view">
+    <p class="muted">Local Live Control, Reviewer, and Recu caches are preferred. The direct Chaturbate affiliate collector is a fallback and can stay disabled while Live Control integration is active.</p>
+    <div id="sourceCards"></div>
+  </section>
+  <section id="setup" class="view">
+    <article class="card">
+      <div class="name">Recommendation eligibility</div>
+      <p class="muted">These are hard eligibility filters, not learned dislikes. Unknown gender stays enabled so incomplete metadata does not silently discard candidates.</p>
+      <label class="check"><input id="genderMale" type="checkbox"> Male</label>
+      <label class="check"><input id="genderTrans" type="checkbox"> Trans</label>
+      <label class="check"><input id="genderFemale" type="checkbox"> Female</label>
+      <label class="check"><input id="genderCouples" type="checkbox"> Couples</label>
+      <label class="check"><input id="genderUnknown" type="checkbox"> Unknown / not yet classified</label>
+      <div class="source-actions"><button id="saveSetup">Save filters</button></div>
+    </article>
+    <article class="card"><div class="name">Integration paths</div><pre id="setupText">Loading…</pre></article>
+  </section>
+  <section id="status" class="view">
+    <button id="refreshIntegration">Refresh Reviewer status</button>
+    <pre id="statusText">Loading…</pre>
+  </section>
+</main>
+<script src="/app.js?v=040"></script>
+</body>
+</html>

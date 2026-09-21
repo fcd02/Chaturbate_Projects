@@ -1,0 +1,69 @@
+CTBRec Discovery v0.4.4 Validation Report
+==========================================
+Date: 2026-09-20
+Release: v0.4.4 — Git Bridge Incremental-Upgrade Validation Hotfix
+Git Bridge: v1.0.2
+
+FIELD FAILURE REPRODUCED
+------------------------
+Second real Windows Git Bridge bootstrap failed in temporary staging at:
+  validation/validate_package.py
+  AssertionError: missing: ['validation/validate_v041.py']
+
+Confirmed root cause:
+- v0.4.3 FULL SOURCE contained historical validators v040-v043.
+- v0.4.3 PATCH correctly contained only files changed by v0.4.3 and therefore did not carry unchanged validate_v041.py / validate_v042.py.
+- validate_package.py incorrectly treated those historical validators as mandatory current package structure.
+- A current live runtime assembled from PATCH overlays may legitimately lack one or more historical validation scripts.
+- GitHub remote was checked after the field failure and remained untouched; main still contained only historical test.md.
+
+ARCHITECTURAL FIX
+-----------------
+PASS: validate_package.py now requires the CURRENT release validator validate_v044.py, not v041/v042/v043.
+PASS: bridge validation executes every validate_*.py actually present and prints the exact inventory.
+PASS: scripts/VALIDATE.bat dynamically discovers validation\\validate_v*.py instead of hard-coding historical releases.
+PASS: validate_v043 historical regression permits newer bridge versions while retaining its recovery guarantees.
+PASS: v0.4.4 PATCH intentionally carries the COMPLETE validation directory (v040-v044 + validate_package.py) to self-heal the user's current runtime.
+PASS: Bridge version advanced to 1.0.2.
+
+CORE RELEASE VALIDATION
+-----------------------
+PASS: Python compile for discovery/, tests/, validation/, Git Bridge.
+PASS: 27/27 unit/regression tests.
+PASS: static/app.js Node syntax check.
+PASS: validate_v040.py.
+PASS: validate_v041.py.
+PASS: validate_v042.py.
+PASS: validate_v043.py.
+PASS: validate_v044.py.
+PASS: validate_package.py.
+
+EXACT FIELD-SHAPE REGRESSION
+----------------------------
+A public-safe staging copy was deliberately stripped of:
+  validation/validate_v041.py
+  validation/validate_v042.py
+  validation/validate_v043.py
+leaving only validate_package.py, validate_v040.py, and current validate_v044.py.
+
+Git Bridge run_full_validation() output:
+  Validation scripts present: validate_package.py, validate_v040.py, validate_v044.py
+  Validation passed (3 validation scripts + unit suite).
+PASS: exact historical-validator-missing bootstrap class is fixed.
+
+UPGRADE / STATE-SAFETY GATES
+----------------------------
+Pending final package overlay test records are appended to this report during release packaging.
+
+SECURITY / SCOPE
+----------------
+No SQLite schema change.
+No recommendation-scoring change.
+No collector/network behavior change.
+No CTBRec mutation behavior change.
+No active discovery_config.json or state DB may ship.
+Git Bridge continues to exclude credentials, cookies/sessions, WM IDs, runtime state, local media, logs and archives.
+PASS: exact v0.4.3 -> v0.4.4 PATCH overlay was tested against a runtime intentionally missing validate_v041.py and validate_v042.py.
+PASS: PATCH restored validate_v040.py through validate_v044.py plus validate_package.py.
+PASS: seeded active discovery_config.json, SQLite DB sentinel and unrelated private runtime sentinel remained byte-for-byte unchanged.
+PASS: public-safe staging from the repaired overlay ran full Git Bridge release validation successfully with all six validation scripts (package + v040-v044) plus the unit suite.

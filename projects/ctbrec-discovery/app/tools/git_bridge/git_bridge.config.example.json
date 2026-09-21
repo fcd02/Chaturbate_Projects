@@ -1,0 +1,15 @@
+{
+  "repository_full_name": "fcd02/Chaturbate_Projects",
+  "repo_path": "C:\\GitHub\\Chaturbate_Projects",
+  "project_subdir": "projects\\ctbrec-discovery",
+  "app_subdir": "projects\\ctbrec-discovery\\app",
+  "runtime_path": "C:\\path\\to\\your\\current\\CTBRec_Discovery_folder",
+  "base_branch": "main",
+  "publish_mode": "pull-request",
+  "auto_merge_pull_request": true,
+  "create_version_tag": true,
+  "run_full_validation": true,
+  "deploy_runtime": true,
+  "restart_after_update": true,
+  "bridge_version": "1.1.0"
+}

@@ -1,0 +1,6 @@
+discovery_config.json
+state/*.sqlite3
+state/*.sqlite3-*
+state/inbox/processed/
+__pycache__/
+*.pyc
